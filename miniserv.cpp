@@ -1,51 +1,95 @@
-// Server side C program to demonstrate HTTP Server programming
-#include <stdio.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <netinet/in.h>
-#include <string.h>
-#include <iostream>
-#include <fcntl.h>
-#include <vector>
+#include "miniserv.h"
 
-#define PORT 8080
+// #define PORT 8080
+
+void		Server::setAddr(void)
+{
+	_addr.sin_family = AF_INET;
+	_addr.sin_addr.s_addr = INADDR_ANY;
+	_addr.sin_port = htons(_port);
+	memset(_addr.sin_zero, '\0', sizeof _addr.sin_zero);
+}
+
+Server::Server(unsigned int port, std::string host)
+{
+	this->_port = port;
+	this->_host = host;
+	_serverFd = -1;
+	this->setAddr();
+}
+
+int		Server::setup(void)
+{
+	int yes = 1;
+	if ((_serverFd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+	{
+		perror("In socket");
+		exit(EXIT_FAILURE);
+	}
+	setsockopt(_serverFd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
+
+	if (_serverFd == -1)
+	{
+		std::cerr <<  "Could not create server."  << std::endl;
+		return (-1);
+	}
+	this->setAddr(); //???????
+	if (bind(_serverFd, (struct sockaddr *)&_addr, sizeof(_addr))<0)
+	{
+		perror("In bind");
+		exit(EXIT_FAILURE);
+	}
+	if (listen(_serverFd, 10) < 0)
+	{
+		perror("In listen");
+		exit(EXIT_FAILURE);
+	}
+	return (0);
+}
+
+
+long Server::getFD()
+{
+	return (_serverFd);
+}
+
 int main(int argc, char const *argv[])
 {
-	int server_fd, new_socket; long valread;
-	struct sockaddr_in address;
-	int addrlen = sizeof(address);
+	int server_fd, new_socket; 
+	long valread;
+	// struct sockaddr_in address;
+	// int addrlen = sizeof(address);
 	
 	// Only this line has been changed. Everything is same.
 	char *hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
 	
 	// Creating socket file descriptor
-	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
-	{
-		perror("In socket");
-		exit(EXIT_FAILURE);
-	}
-    // fcntl(server_fd, F_SETFL, O_NONBLOCK); ???
+	// if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+	// {
+	// 	perror("In socket");
+	// 	exit(EXIT_FAILURE);
+	// }
+	// 	int yes = 1;
+	// setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
 
 
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons( PORT );
+	// address.sin_family = AF_INET;
+	// address.sin_addr.s_addr = INADDR_ANY;
+	// address.sin_port = htons( PORT );
 	
-	memset(address.sin_zero, '\0', sizeof address.sin_zero);
-	int yes = 1;
-	setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
+	// memset(address.sin_zero, '\0', sizeof address.sin_zero);
 
-	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address))<0)
-	{
-		perror("In bind");
-		exit(EXIT_FAILURE);
-	}
-	if (listen(server_fd, 10) < 0)
-	{
-		perror("In listen");
-		exit(EXIT_FAILURE);
-	}
+
+	// if (bind(server_fd, (struct sockaddr *)&address, sizeof(address))<0)
+	// {
+	// 	perror("In bind");
+	// 	exit(EXIT_FAILURE);
+	// }
+	// if (listen(server_fd, 10) < 0)
+	// {
+	// 	perror("In listen");
+	// 	exit(EXIT_FAILURE);
+	// }
 
 	fd_set master;    // master file descriptor list
 	fd_set read_fds;  // temp file descriptor list for select()
