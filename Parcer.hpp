@@ -31,6 +31,10 @@ public:
 	std::map<std::string, std::string> more_info;
 	std::map<std::string, Location> locations;
 	
+	uint32_t host;
+	uint16_t port;
+	
+
 	void print(void)
 	{
 		std::cout << "MORE INFO SERVER " << name << ":\n";
@@ -51,8 +55,7 @@ class Config
 {
 	public:
 		Config(const std::string &path);
-		std::map<std::string, Server> servers;
-		
+		std::vector<Server> servers;
 	private:
 		void init(std::string const &str);
 		void pars_server(std::string const &str);
@@ -61,12 +64,13 @@ class Config
 		size_t find_server(std::string const &str, int i);
 		void server_init(std::string const &str, Server *server);
 		void location_init(std::string const &str, Location *location);
-		
 		bool check_brace(std::string const &str);
 		bool find_in_set(char c, std::string const &set);
 		std::string remove_delim(std::string item, std::string const &set);
 		std::vector<std::string> split_line(const std::string &buffer);
-		std::map<std::string, std::string> more_info_init(std::vector<std::string> info);	
+		std::map<std::string, std::string> more_info_init(std::vector<std::string> info);
+
+		void server_init_listen(std::string info, Server *server);
 };
 
 Config::Config(const std::string &path)
@@ -118,7 +122,7 @@ void Config::pars_server(std::string const &str)
 		}
 		i = idx2;
 	}
-	servers[svr.name] = svr;
+	servers.push_back(svr);
 	svr.print();
 }
 
@@ -171,10 +175,22 @@ size_t Config::find_location(std::string const &str, int i)
 	return (idx);
 }
 
+void Config::server_init_listen(std::string info, Server *server)
+{
+	int idx = info.find(":", 0);
+	server->host = std::stoi(std::string(info.begin(), info.begin()+idx));
+	server->port = std::stoi(std::string(info.begin()+idx+1, info.end()));
+}
+
 void Config::server_init(std::string const &str, Server *server)
 {
 	std::vector<std::string> info = split_line(remove_delim(std::string(str), "\t\v\r"));
 	server->more_info = more_info_init(info);
+	
+	if (server->more_info.count("listen"))
+		server_init_listen(server->more_info["listen"], server);
+	else
+		std::cout << "NO LISTEN IN SERVER\n";
 }
 
 std::string Config::remove_delim(std::string item, std::string const &set)
@@ -275,11 +291,3 @@ size_t Config::find_server(std::string const &str, int i)
 }
 
 
-int main(int argc, char **argv)
-{
-	if (argc == 2)
-	{
-		Config config(argv[1]);
-	}
-	return (0);
-}

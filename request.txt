@@ -1,4 +1,4 @@
-Hello from client
+GET / HTTP/1.1
 abc: drt
 lef: ofef
 

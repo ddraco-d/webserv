@@ -12,6 +12,8 @@ private:
 	std::string version;
 	std::map<std::string, std::string> headers;
 	std::string body;
+
+	int check_valid(void);
 public:
 	Request(char *buffer);
 	std::string get(void);
@@ -57,6 +59,16 @@ std::vector<std::string> split_headers(const std::string &buffer)
 	return (table);
 }
 
+std::string remove_delim(std::string item, std::string const &set)
+{
+	for (int i = 0; i < set.size(); ++i)
+	{
+		std::string::iterator end_pos = std::remove(item.begin(), item.end(), set[i]);
+		item.erase(end_pos, item.end());
+	}
+	return (item);
+}
+
 Request::Request(char * buffer)
 {
 	std::vector<std::string> table;
@@ -69,9 +81,9 @@ Request::Request(char * buffer)
 		first_line = split_first(table[i].data());
 		if (first_line.size() == 3)
 		{
-			method = first_line[0];
-			path = first_line[1];
-			version = first_line[2];
+			method = remove_delim(first_line[0], "\t\v\r");
+			path = remove_delim(first_line[1], "\t\v\r");
+			version = remove_delim(first_line[2], "\t\v\r");
 		}
 		for (i = 1; i < table.size() && table[i] != ""; ++i)
 		{
@@ -88,7 +100,16 @@ Request::Request(char * buffer)
 			}
 		}
 	}
-	status_code = 0;
+	status_code = check_valid();
+}
+
+int Request::check_valid()
+{
+	if (!(method == "GET" || method == "POST" || method == "DELETE"))
+		return (-1);
+	if (!(version == "HTTP/1.1"))
+		return (-1);
+	return (0);
 }
 
 std::string Request::get(void) 
