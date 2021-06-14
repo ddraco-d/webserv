@@ -5,6 +5,9 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include <string>
+#include <sstream>
+#include <fstream>
 
 #define PORT 8080
 
@@ -14,8 +17,12 @@ int main(int argc, char const *argv[])
 	long valread;
     struct sockaddr_in serv_addr;
 
-    char *hello = "Hello from client";
-    char buffer[1024] = {0};
+	std::ifstream ifs("request.txt");
+	std::stringstream ss;
+	ss << ifs.rdbuf();
+    std::string hello = ss.str();
+    
+	char buffer[1024] = {0};
 
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
@@ -40,9 +47,8 @@ int main(int argc, char const *argv[])
         printf("\nConnection Failed \n");
         return -1;
     }
-    send(sock , hello , strlen(hello) , 0);
-    printf("Hello message sent\n");
+    send(sock , hello.c_str() , hello.length(), 0);
     valread = read( sock , buffer, 1024);
-    printf("WEB RESPONS: %s\n", buffer);
+    printf("WEB RESPONS:\n%s", buffer);
     return 0;
 }

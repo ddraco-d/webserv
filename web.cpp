@@ -59,8 +59,6 @@ int main(int argc, char const *argv[])
         exit(EXIT_FAILURE);
     }
 	
-	
-	
     while(1)
     {
         printf("\n+++++++ Waiting for new connection ++++++++\n\n");
@@ -71,7 +69,7 @@ int main(int argc, char const *argv[])
         }
         std::vector<char> request(1400);
         valread = recv(new_socket, request.data(), request.size(), 0);
-        printf("REQUEST: %s\n", request.data());
+        printf("REQUEST:\n%s", request.data());
 		if(valread < 0)
 		{
 			printf("Нет байт для чтения\n");
@@ -88,8 +86,7 @@ int main(int argc, char const *argv[])
 		Request req(request.data());
 		response2 << req.get().length() << "\n\n" << req.get();
 		send(new_socket , response2.str().c_str(), strlen(response2.str().c_str()), 0);
-		printf("%s", response2.str().c_str());
-        printf("-------------------- Message sent-------------------\n");
+		printf("\n\nRESPONS:\n%s", response2.str().c_str());
         close(new_socket);
     }
     return 0;

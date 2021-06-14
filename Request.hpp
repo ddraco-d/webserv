@@ -15,6 +15,7 @@ private:
 public:
 	Request(char *buffer);
 	std::string get(void);
+	int		status_code;
 };
 
 std::vector<std::string> split_line(const std::string &buffer)
@@ -87,7 +88,9 @@ Request::Request(char * buffer)
 			}
 		}
 	}
+	status_code = 0;
 }
+
 std::string Request::get(void) 
 {
 	std::string request;
@@ -98,6 +101,6 @@ std::string Request::get(void)
 	for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it)
 		request += it->first + ":" + it->second + "\n";
 	
-	request += "BODY: " + body + "\n";
+	request += "BODY: " + body;
 	return (request);
 }
