@@ -11,10 +11,10 @@ private:
 	std::string path;
 	std::string version;
 	std::map<std::string, std::string> headers;
+	std::string body;
 public:
-	Request(char * buffer);
+	Request(char *buffer);
 	std::string get(void);
-	~Request();
 };
 
 std::vector<std::string> split_line(const std::string &buffer)
@@ -62,20 +62,29 @@ Request::Request(char * buffer)
 	std::vector<std::string> first_line;
 	std::vector<std::string> other_line;
 	table = split_line(buffer);
+	int i = 0;
 	if (!table.empty())
 	{
-		first_line = split_first(table[0].data());
+		first_line = split_first(table[i].data());
 		if (first_line.size() == 3)
 		{
 			method = first_line[0];
 			path = first_line[1];
 			version = first_line[2];
 		}
-		for (int i = 1; i < table.size(); ++i)
+		for (i = 1; i < table.size() && table[i] != ""; ++i)
 		{
 			other_line = split_headers(table[i].data());
 			if (other_line.size() == 2)
 				headers[other_line[0]] = other_line[1];
+		}
+		if (table[i] == "")
+		{
+			i++;
+			for ( ; i < table.size(); ++i)
+			{
+				body += table[i] + "\n";
+			}
 		}
 	}
 }
@@ -88,9 +97,7 @@ std::string Request::get(void)
 
 	for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it)
 		request += it->first + ":" + it->second + "\n";
+	
+	request += "BODY: " + body + "\n";
 	return (request);
 }
- Request::~Request()
- {
-
- }

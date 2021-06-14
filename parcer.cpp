@@ -12,6 +12,7 @@ class Location
 public:
 	std::string name;
 	std::map<std::string, std::string> more_info;
+	
 	void print(void)
 	{
 		std::cout << "MORE INFO LOCATION: " << name << ":\n";
@@ -29,13 +30,10 @@ public:
 	std::string name;
 	std::map<std::string, std::string> more_info;
 	std::map<std::string, Location> locations;
-	std::string GetName(void)
-	{
-		return (name);
-	}
+	
 	void print(void)
 	{
-		std::cout << "MORE INFO SERVER:\n";
+		std::cout << "MORE INFO SERVER " << name << ":\n";
 		for (std::map<std::string, std::string>::iterator it = more_info.begin(); it != more_info.end(); ++it)
 		{
 			std::cout << "|" << it->first << ":" << it->second << "|\n";
@@ -85,9 +83,9 @@ void Config::init(std::string const &str)
 	size_t idx = 0;
 	size_t idx2 = 0;
 	
-	while ((idx = find_server(str, i)) != std::string::npos)
+	while ((idx = find_server(str, i)) != NO_FIND)
 	{
-		if ((idx2 = find_server(str, idx+1)) != std::string::npos)
+		if ((idx2 = find_server(str, idx+1)) != NO_FIND)
 			pars_server(std::string(str.begin()+idx+6, str.begin()+idx2));
 		else
 			pars_server(std::string(str.begin()+idx+6, str.end()));
@@ -120,7 +118,7 @@ void Config::pars_server(std::string const &str)
 		}
 		i = idx2;
 	}
-	servers[svr.GetName()] = svr;
+	servers[svr.name] = svr;
 	svr.print();
 }
 
@@ -162,7 +160,7 @@ bool Config::find_in_set(char c, std::string const &set)
 size_t Config::find_location(std::string const &str, int i)
 {
 	size_t idx = 0;
-	while ((idx = str.find("location ", i)) != std::string::npos)
+	while ((idx = str.find("location ", i)) != NO_FIND)
 	{
 		if (idx == 0)
 			return (idx);
@@ -214,7 +212,12 @@ std::map<std::string, std::string> Config::more_info_init(std::vector<std::strin
 			more_info[std::string(info[i].begin(), info[i].begin()+g)] = std::string(info[i].begin()+g+1, info[i].end());
 		}
 		else
-			std::cout << "NO_INFO:" << info[i] << "\n";
+		{
+			if (info[i] == "alias")
+				more_info["alias"] = "root";
+			else
+				std::cout << "NO_INFO:" << info[i] << "\n";
+		}
 	}
 	return (more_info);
 }
@@ -231,8 +234,8 @@ void Config::pars_location(std::string const &str, Server *server, std::string c
 	int idx = 0;
 	int idx2 = 0;
 	Location loc;
-	loc.name = std::string(str.begin(), str.begin()+str.find("{"));
-	loc.name = remove_delim(std::string(ln+loc.name), " \n\t\v\r");
+	loc.name = remove_delim(std::string(str.begin(), str.begin()+str.find("{")), " \n\t\v\r");
+	loc.name = (loc.name[0] == '/') ? ln + loc.name : ln + "/" + loc.name;
 	std::string str2 = std::string(str.begin()+str.find("{"), str.begin()+str.rfind("}")+1);
 	check_brace(str2);
 	str2 = std::string(str2.begin()+str2.find("{")+1, str2.begin()+str2.rfind("}"));
@@ -260,7 +263,7 @@ void Config::pars_location(std::string const &str, Server *server, std::string c
 size_t Config::find_server(std::string const &str, int i)
 {
 	size_t idx = 0;
-	while ((idx = str.find("server", i)) != std::string::npos)
+	while ((idx = str.find("server", i)) != NO_FIND)
 	{
 		if ((idx == 0) && find_in_set(str[idx+6], " \n\t\v\r{"))
 			return (idx);

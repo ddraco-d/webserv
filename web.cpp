@@ -71,7 +71,7 @@ int main(int argc, char const *argv[])
         }
         std::vector<char> request(1400);
         valread = recv(new_socket, request.data(), request.size(), 0);
-        printf("%s\n", request.data());
+        printf("REQUEST: %s\n", request.data());
 		if(valread < 0)
 		{
 			printf("Нет байт для чтения\n");
@@ -81,14 +81,14 @@ int main(int argc, char const *argv[])
 		std::ifstream html("my.html");
 		h << html.rdbuf();
 		response << h.str().length() << "\n\n" << h.str();
-		send(new_socket , response.str().c_str(), strlen(response.str().c_str()), 0);
+		//send(new_socket , response.str().c_str(), strlen(response.str().c_str()), 0);
 
 		std::stringstream response2;
 		response2 << "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: ";
 		Request req(request.data());
 		response2 << req.get().length() << "\n\n" << req.get();
-		//send(new_socket , response2.str().c_str(), strlen(response2.str().c_str()), 0);
-		//printf("%s", req.get().c_str());
+		send(new_socket , response2.str().c_str(), strlen(response2.str().c_str()), 0);
+		printf("%s", response2.str().c_str());
         printf("-------------------- Message sent-------------------\n");
         close(new_socket);
     }
