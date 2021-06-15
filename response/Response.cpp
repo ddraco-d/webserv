@@ -6,7 +6,7 @@
 /*   By: efumiko <efumiko@student.21-school.ru>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/15 18:42:33 by efumiko           #+#    #+#             */
-/*   Updated: 2021/06/15 21:11:16 by efumiko          ###   ########.fr       */
+/*   Updated: 2021/06/16 00:04:34 by efumiko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,11 @@
 
 Response::Response(void)
 {
+    _res = "www/";
     _code = 200;
     _method = "GET";
-    _path_to_res = "./test/www/index.html";
+    //_path_to_res = "./test/www/index.html";
+    _path_to_res = "./test/www/";
 }
 
 Response::Response(const Request &request_conf, const Config &serv_conf)
@@ -68,7 +70,9 @@ std::string Response::getResponse()
 	//path_to_res += request_conf.getPath();
 
 	// автоиндекс и путь это директория.
-	//if (isDirectory()) {}
+	if (isFile() == false) {
+        return (createResponse(getListingHTMLPage(_res)));
+    }
 	//if (isCGI()) {}
 
 	if (_method == "GET") {
@@ -77,10 +81,62 @@ std::string Response::getResponse()
 	// if (_method == "POST") {
 	// 	return post_method();
 	// }
-	// if (_method == "DELETE") {
-	// 	return delete_method();
-	//}
+	if (_method == "DELETE") {
+		return delete_method();
+	}
 	return NULL;
+}
+
+std::string Response::getListingHTMLPage(std::string ressource)
+{
+	std::string base;
+	std::string listing;
+	std::string link_base;
+	size_t i;
+	struct dirent *en;
+	DIR *dr;
+
+    std::string tmp_path_to_res = _path_to_res;
+    _path_to_res = "./test/www/listing.html";
+	read_file();
+	base = _body_content;
+    base = replace(base, "$1", ressource);
+	if ((dr = opendir(tmp_path_to_res.c_str())) == NULL)
+		return ("ERROR OPENDIR");
+	i = 0;
+	// while (_header_block.getRequestLine()._request_target[i] && _header_block.getRequestLine()._request_target[i] != '?')
+	// 	link_base += _header_block.getRequestLine()._request_target[i++];
+	// if (link_base[link_base.size() - 1] != '/')
+	// 	link_base += '/';
+	link_base = "testtest";
+    while ((en = readdir(dr)) != 0)
+		listing += "<li><a href=\"" + link_base + std::string(en->d_name) +  "\">" + std::string(en->d_name) + "</a></li>";
+	closedir(dr);
+	base = replace(base, "$2", listing);
+	return (base);
+}
+
+std::string Response::replace(std::string source, std::string to_replace, std::string new_value) 
+{
+	size_t start_pos = 0;
+	while((start_pos = source.find(to_replace, start_pos)) != std::string::npos) {
+		source.replace(start_pos, to_replace.length(), new_value);
+		start_pos += new_value.length();
+	}
+	return (source);
+}
+
+std::string Response::delete_method()
+{
+    int type;
+
+	if (isFile() && (remove(_path_to_res.c_str()) == 0))
+	{
+        _code = 204;
+		return (createResponse(""));
+	}
+    _code = 404;
+	return (createResponse(getErrorPage()));
 }
 
 std::string Response::get_method()
@@ -108,6 +164,7 @@ std::string Response::getLastModif()
     return (formatDate(last_date));
 }
 
+// todo: переписать функцию
 int Response::read_file()
 {
 	std::ifstream		file;
