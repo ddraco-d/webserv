@@ -4,6 +4,10 @@
 #include <sstream>
 #include <iostream>
 #include <map>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #define NO_FIND std::string::npos
 
 #ifndef PARCER_HPP
@@ -72,6 +76,10 @@ class Config
 		std::map<std::string, std::string> more_info_init(std::vector<std::string> info);
 
 		void server_init_listen(std::string info, Server *server);
+
+		void check_valid_server(void);
+		void check_valid_location(Server *server);
+		int dir_exists(const char* const path);
 };
 
 Config::Config(const std::string &path)
@@ -80,6 +88,54 @@ Config::Config(const std::string &path)
 	std::stringstream ss;
 	ss << html.rdbuf();
 	init(ss.str());
+
+	check_valid_server();
+}
+
+void Config::check_valid_server(void)
+{
+	for (int i = 0; i < servers.size(); ++i)
+	{
+		if (servers[i].more_info.count("root") == 0)
+			std::cout << "NO ROOT!!!!\n";
+		else if (dir_exists(servers[i].more_info["root"].c_str()) != 1)
+			std::cout << "NO VALID PATH!!!!" << servers[i].more_info["root"].c_str() << "\n";
+		else
+			std::cout << "VALID PATH!!!!" << servers[i].more_info["root"].c_str() << "\n";
+		check_valid_location(&(servers[i]));
+	}
+}
+
+void Config::check_valid_location(Server *server)
+{
+	for (std::map<std::string, Location>::iterator it = server->locations.begin(); it != server->locations.end(); ++it)
+	{
+		std::string path_loc;
+		if (server->more_info.count("root") == 1)
+			path_loc = server->more_info["root"] + it->first;
+		else
+			path_loc = it->first;
+		if (dir_exists(path_loc.c_str()) != 1)
+			std::cout << "NO VALID PATH LOC!!!!" << path_loc << "\n";
+		else
+			std::cout << "VALID PATH LOC!!!!" << path_loc << "\n";
+	}
+}
+
+int Config::dir_exists(const char* const path)
+{
+    struct stat info;
+
+    int statRC = stat(path, &info);
+    if( statRC != 0 )
+    {
+        if (errno == ENOENT)
+			return (0); // something along the path does not exist
+        if (errno == ENOTDIR)
+			return (0); // something in path prefix is not a dir
+        return -1;
+    }
+    return ((info.st_mode & S_IFDIR ) ? 1 : 0);
 }
 
 void Config::init(std::string const &str)
@@ -230,10 +286,7 @@ std::map<std::string, std::string> Config::more_info_init(std::vector<std::strin
 		}
 		else
 		{
-			if (info[i] == "alias")
-				more_info["alias"] = "root";
-			else
-				std::cout << "NO_INFO:" << info[i] << "\n";
+			std::cout << "NO_INFO:" << info[i] << "\n";
 		}
 	}
 	return (more_info);
@@ -252,7 +305,10 @@ void Config::pars_location(std::string const &str, Server *server, std::string c
 	int idx2 = 0;
 	Location loc;
 	loc.name = remove_delim(std::string(str.begin(), str.begin()+str.find("{")), " \n\t\v\r");
-	loc.name = (loc.name[0] == '/') ? ln + loc.name : ln + "/" + loc.name;
+	if	(loc.name[0] == '/')
+		loc.name =  ln + loc.name;
+	else
+		std::cout << "BED LOCATION NAME\n";
 	std::string str2 = std::string(str.begin()+str.find("{"), str.begin()+str.rfind("}")+1);
 	check_brace(str2);
 	str2 = std::string(str2.begin()+str2.find("{")+1, str2.begin()+str2.rfind("}"));
