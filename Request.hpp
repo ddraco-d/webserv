@@ -112,6 +112,19 @@ int Request::check_valid(Server *server)
 		return (400);
 	if (server->locations.count(path) == 0 && path != "/")
 		return (404);
+	if (path == "/" && server->more_info.count("allow_methods") != 0)
+		if (server->more_info["allow_methods"].find(method) == NO_FIND)
+			return (471);
+	if (server->locations[path].more_info.count("allow_methods") != 0)
+		if (server->locations[path].more_info["allow_methods"].find(method) == NO_FIND)
+			return (471);
+
+	if (path == "/" && server->more_info.count("client_body_buffer_size") != 0)
+		if (std::stoi(server->more_info["client_body_buffer_size"]) < body.size())
+			return (471);
+	if (server->locations[path].more_info.count("client_body_buffer_size") != 0)
+		if (std::stoi(server->locations[path].more_info["client_body_buffer_size"]) < body.size())
+			return (471);
 	return (0);
 }
 

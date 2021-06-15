@@ -1,5 +1,5 @@
-GET / HTTP/1.1
+POST /post_body HTTP/1.1
 abc: drt
 lef: ofef
 
-ecececee
+ecececeererereree
