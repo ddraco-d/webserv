@@ -14,7 +14,7 @@
 #include "Request.hpp"
 #include "Parcer.hpp"
 
-#define PORT 8080
+#define PORT 8000
 
 class Web_server
 {
@@ -76,7 +76,7 @@ Web_server::Web_server(Server server)
 		bed << "Bed request :(\n";
 		std::stringstream response2;
 		response2 << "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: ";
-		Request req(request.data());
+		Request req(request.data(), &server);
 		if (req.status_code == 0)
 			response2 << req.get().length() << "\n\n" << req.get();
 		else

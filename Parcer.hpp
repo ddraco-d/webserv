@@ -6,7 +6,8 @@
 #include <map>
 #define NO_FIND std::string::npos
 
-
+#ifndef PARCER_HPP
+#define PARCER_HPP
 class Location
 {
 public:
@@ -291,3 +292,4 @@ size_t Config::find_server(std::string const &str, int i)
 }
 
 
+#endif

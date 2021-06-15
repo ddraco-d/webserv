@@ -3,6 +3,7 @@
 #include <map>
 #include <sstream>
 #include <algorithm>
+#include "Parcer.hpp"
 
 class Request
 {
@@ -13,9 +14,9 @@ private:
 	std::map<std::string, std::string> headers;
 	std::string body;
 
-	int check_valid(void);
+	int check_valid(Server *server);
 public:
-	Request(char *buffer);
+	Request(char *buffer, Server *server);
 	std::string get(void);
 	int		status_code;
 };
@@ -69,7 +70,7 @@ std::string remove_delim(std::string item, std::string const &set)
 	return (item);
 }
 
-Request::Request(char * buffer)
+Request::Request(char *buffer, Server *server)
 {
 	std::vector<std::string> table;
 	std::vector<std::string> first_line;
@@ -100,15 +101,17 @@ Request::Request(char * buffer)
 			}
 		}
 	}
-	status_code = check_valid();
+	status_code = check_valid(server);
 }
 
-int Request::check_valid()
+int Request::check_valid(Server *server)
 {
 	if (!(method == "GET" || method == "POST" || method == "DELETE"))
-		return (-1);
+		return (471);
 	if (!(version == "HTTP/1.1"))
-		return (-1);
+		return (400);
+	if (server->locations.count(path) == 0 && path != "/")
+		return (404);
 	return (0);
 }
 
