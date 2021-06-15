@@ -10,9 +10,9 @@
 class Location
 {
 public:
-	std::vector<std::string> getMethods(void); // todo: create method that return vector of allowed methods in location
-	std::string getRoot(); // написать
-	std::string getIndex(); // написать
+	// std::vector<std::string> getMethods(void); // todo: create method that return vector of allowed methods in location
+	// std::string getRoot(); // написать
+	// std::string getIndex(); // написать
 
 	std::string name;
 	std::map<std::string, std::string> more_info;
@@ -56,6 +56,7 @@ private:
 class Config
 {
 	public:
+		Config(void);
 		Config(const std::string &path);
 		std::map<std::string, Server> servers;
 		
@@ -74,6 +75,9 @@ class Config
 		std::vector<std::string> split_line(const std::string &buffer);
 		std::map<std::string, std::string> more_info_init(std::vector<std::string> info);	
 };
+
+Config::Config(void)
+{}
 
 Config::Config(const std::string &path)
 {

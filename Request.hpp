@@ -15,10 +15,14 @@ public:
     std::string getPath() const;
     std::string getMethod() const;
 
+	Request(void);
 	Request(char * buffer);
 	std::string get(void);
 	~Request();
 };
+
+Request::Request(void) 
+{}
 
 std::vector<std::string> split_line(const std::string &buffer)
 {
