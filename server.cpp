@@ -1,5 +1,6 @@
 #include "server.h"
 
+
 void		Server::setAddr(void)
 {
 	_addr.sin_family = AF_INET;
@@ -80,15 +81,33 @@ int			Server::recv(long socket)
 	if ((nbytes = ::recv(socket, buf, sizeof(buf), 0)) <= 0) 
 	{
 		if (nbytes == 0) 
-			printf("selectserver: socket %ld hung up\n", socket); // connection closed
-		else 
-			perror("recv");
-		close(socket); // bye!
+			std::cout << "\rConnection closed by client, socket number" << socket << std::endl;
+		else if (nbytes == -1)
+			perror("\r recv");
+		::close(socket); // bye!
 		return (-1);
 	} 
 	else
 		return (1);
 }
 
+int			Server::send(long socket)
+{
+	// std::string hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
 
+	std::stringstream response, h;
+	response << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
+	std::ifstream html("my.html");
+	h << html.rdbuf();
+	response << h.str().length() << "\n\n" << h.str();
+	int rVal = ::send(socket , response.str().c_str(), strlen(response.str().c_str()), 0);
+	// int rVal = ::send(socket, hello.c_str(), strlen(hello.c_str()), 0);
+	if (rVal == -1)
+	{
+		close(socket);
+		perror("send");
+		return (-1);
+	}
+	return (rVal);
+}
 

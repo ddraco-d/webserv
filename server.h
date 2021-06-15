@@ -14,6 +14,7 @@
 # include <map>
 #include <sstream>
 #include <fstream>
+#include <set>
 
 class Server {
 public:
@@ -31,11 +32,12 @@ public:
 	// void	process(long socket, Config & conf); нужно!
 	// void	processChunk(long socket);
 	int		recv(long socket);
-	// int	send(long socket);
+	int	send(long socket);
 	// void	close(int socket);
 	// void	clean(void);
 private:
 	// std::map<long, std::string>	_requests;
+
 	unsigned int				_port;
 	std::string					_host;
 	long						_serverFd;
