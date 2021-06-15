@@ -111,14 +111,14 @@ void Config::check_valid_location(Server *server)
 	for (std::map<std::string, Location>::iterator it = server->locations.begin(); it != server->locations.end(); ++it)
 	{
 		std::string path_loc;
-		if (server->more_info.count("root") == 1)
-			path_loc = server->more_info["root"] + it->first;
-		else
-			path_loc = it->first;
-		if (dir_exists(path_loc.c_str()) != 1)
-			std::cout << "NO VALID PATH LOC!!!!" << path_loc << "\n";
-		else
-			std::cout << "VALID PATH LOC!!!!" << path_loc << "\n";
+		if (it->second.more_info.count("root") == 1)
+		{
+			path_loc = it->second.more_info["root"];
+			if (dir_exists(path_loc.c_str()) != 1)
+				std::cout << "NO VALID PATH in LOK!!!!" << path_loc << "\n";
+			else
+				std::cout << "VALID PATH in LOK!!!!" << path_loc << "\n";
+		}
 	}
 }
 

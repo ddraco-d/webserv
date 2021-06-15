@@ -1,5 +1,5 @@
-POST /post_body HTTP/1.1
+GET /post_body/directory/directory/123 HTTP/1.1
 abc: drt
 lef: ofef
 
-ecececeererereree
+01234567

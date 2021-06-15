@@ -15,10 +15,12 @@ private:
 	std::string body;
 
 	int check_valid(Server *server);
+	int check_valid_path(Server *server);
 public:
 	Request(char *buffer, Server *server);
 	std::string get(void);
 	int		status_code;
+	int dir_exists(const char* const path);
 };
 
 std::vector<std::string> split_line(const std::string &buffer)
@@ -104,28 +106,99 @@ Request::Request(char *buffer, Server *server)
 	status_code = check_valid(server);
 }
 
+int Request::dir_exists(const char* const path)
+{
+    struct stat info;
+
+    int statRC = stat(path, &info);
+    if( statRC != 0 )
+    {
+        if (errno == ENOENT)
+			return (0); // something along the path does not exist
+        if (errno == ENOTDIR)
+			return (0); // something in path prefix is not a dir
+        return (-1);
+    }
+    return ((info.st_mode & S_IFDIR ) ? 1 : 2);
+}
+
+int Request::check_valid_path(Server *server)
+{
+	std::string url = "/";
+	for (std::map<std::string, Location>::iterator it = server->locations.begin(); it != server->locations.end(); ++it)
+	{
+		if (path.find(it->first, 0) != NO_FIND)
+			if (it->first.length() >= url.length())
+				url = it->first;
+	}
+	//зная где мы валидируем и меняем путь если все ок
+	if (url == "/")
+	{
+		//остаемся в сервере
+		if (path == url)
+			if (server->more_info.count("index") == 1)
+				path = path + server->more_info["index"];
+		if (server->more_info.count("root") == 1)
+			path = server->more_info["root"] + path;
+		
+		if (dir_exists(path.c_str()) <= 0)
+			return (404);
+
+		if (server->more_info.count("allow_methods") == 1)
+			if (server->more_info["allow_methods"].find(method) == NO_FIND)
+				return (471);
+		
+		if (server->more_info.count("client_body_buffer_size") == 1)
+		{
+			if (std::stoi(server->more_info["client_body_buffer_size"]) < body.size())
+				return (471);
+		}
+		else
+		{
+			if (12656974 < body.size())
+				return (471);
+		}
+	}
+	else
+	{
+		if (path == url)
+			if (server->locations[url].more_info.count("index") == 1)
+				path = path + server->locations[url].more_info["index"];
+		int idx = path.find(url, 0);
+		std::string  ending = std::string(path.begin() + url.size(), path.end());
+		if (server->locations[url].more_info.count("root") == 1)
+			path = server->locations[url].more_info["root"] + ending;
+		
+		if (dir_exists(path.c_str()) <= 0)
+			return (404);
+
+		if (server->locations[url].more_info.count("allow_methods") == 1)
+			if (server->locations[url].more_info["allow_methods"].find(method) == NO_FIND)
+				return (471);
+		
+		if (server->locations[url].more_info.count("client_body_buffer_size") == 1)
+		{
+			if (std::stoi(server->locations[url].more_info["client_body_buffer_size"]) < body.size())
+				return (471);
+		}
+		else
+		{
+			if (12656974 < body.size())
+				return (471);
+		}
+	}
+	return (0);
+}
+
+
+
 int Request::check_valid(Server *server)
 {
 	if (!(method == "GET" || method == "POST" || method == "DELETE"))
 		return (471);
 	if (!(version == "HTTP/1.1"))
 		return (400);
-	if (server->locations.count(path) == 0 && path != "/")
-		return (404);
-	if (path == "/" && server->more_info.count("allow_methods") != 0)
-		if (server->more_info["allow_methods"].find(method) == NO_FIND)
-			return (471);
-	if (server->locations[path].more_info.count("allow_methods") != 0)
-		if (server->locations[path].more_info["allow_methods"].find(method) == NO_FIND)
-			return (471);
-
-	if (path == "/" && server->more_info.count("client_body_buffer_size") != 0)
-		if (std::stoi(server->more_info["client_body_buffer_size"]) < body.size())
-			return (471);
-	if (server->locations[path].more_info.count("client_body_buffer_size") != 0)
-		if (std::stoi(server->locations[path].more_info["client_body_buffer_size"]) < body.size())
-			return (471);
-	return (0);
+	return (check_valid_path(server));
 }
 
 std::string Request::get(void) 
