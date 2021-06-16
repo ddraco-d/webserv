@@ -17,7 +17,7 @@ public:
 private:
 	// Config						_config;
 	std::map<long, Server>		_servers;
-	std::set <long>				_accepted_sockets;
+	std::map <long, Server *>		_accepted_sockets;
 	std::vector<int>			_ready;
 	fd_set						_masterFD;
 	fd_set 						_read_fds;  // temp file descriptor list for select()

@@ -16,6 +16,9 @@
 #include <fstream>
 #include <set>
 
+# define RECV_SIZE 65536
+
+
 class Server {
 public:
 	Server(unsigned int port, std::string host);
@@ -29,15 +32,15 @@ public:
 	int		setup(void);
 	void	setAddr(void);
 	long	accept(void);
-	// void	process(long socket, Config & conf); нужно!
+	void	process(long socket); //, Config & conf); нужно!
 	// void	processChunk(long socket);
 	int		recv(long socket);
 	int	send(long socket);
 	// void	close(int socket);
 	// void	clean(void);
 private:
-	// std::map<long, std::string>	_requests;
-
+	std::map<long, std::string>	_requests;
+	std::map<long, std::string>	_response;
 	unsigned int				_port;
 	std::string					_host;
 	long						_serverFd;
