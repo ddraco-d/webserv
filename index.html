@@ -1,0 +1,33 @@
+<head>
+    <style>
+        body {
+            color: #ffffff;
+            background: linear-gradient(#151866, #252B33);
+            padding: 100px;
+            }
+            a {
+                color: #1abc90;
+                font-size: 2rem;
+            }
+    </style>
+    <body>
+		<FORM METHOD=GET ACTION="http://localhost:8000/my_cgi">
+			<TABLE>
+			<TR>
+				<TD VALIGN=TOP>Please enter your:</TD>
+			</TR>
+			<TR>
+				<TD VALIGN=TOP>First name: </TD>
+			  	<TD><INPUT TYPE=text NAME="first_name" VALUE="Ivan"></TD>
+			</TR>
+			<TR>
+				<TD VALIGN=TOP>Last name: </TD>
+			  	<TD><INPUT TYPE=text NAME="last_name" VALUE="Ivanov"></TD>
+			</TR>
+			<TR>
+			  	<INPUT TYPE=submit VALUE="Send">
+			</TR>
+			</TABLE>
+		</FORM>
+    </body>
+</head>

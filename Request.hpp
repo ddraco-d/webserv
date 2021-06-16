@@ -9,7 +9,7 @@ class Request
 {
 private:
 	std::string method;
-	std::string path;
+	
 	std::string version;
 	std::map<std::string, std::string> headers;
 	std::string body;
@@ -21,6 +21,10 @@ public:
 	std::string get(void);
 	int		status_code;
 	int dir_exists(const char* const path);
+	std::string autoindex;
+
+	std::string path;
+	std::string cgi_arg;
 };
 
 std::vector<std::string> split_line(const std::string &buffer)
@@ -103,7 +107,10 @@ Request::Request(char *buffer, Server *server)
 			}
 		}
 	}
+	autoindex = "off";
 	status_code = check_valid(server);
+
+
 }
 
 int Request::dir_exists(const char* const path)
@@ -136,11 +143,21 @@ int Request::check_valid_path(Server *server)
 	{
 		//остаемся в сервере
 		if (path == url)
+		{
 			if (server->more_info.count("index") == 1)
 				path = path + server->more_info["index"];
+			else
+			{
+				if (server->more_info.count("autoindex") == 1)
+					if (server->more_info["autoindex"] == "on")
+						autoindex = "on";
+			}
+		}
+
 		if (server->more_info.count("root") == 1)
 			path = server->more_info["root"] + path;
 		
+
 		if (dir_exists(path.c_str()) <= 0)
 			return (404);
 
@@ -162,13 +179,34 @@ int Request::check_valid_path(Server *server)
 	else
 	{
 		if (path == url)
+		{
 			if (server->locations[url].more_info.count("index") == 1)
 				path = path + server->locations[url].more_info["index"];
+			else
+			{
+				if (server->locations[url].more_info.count("autoindex") == 1)
+					if (server->locations[url].more_info["autoindex"] == "on")
+						autoindex = "on";
+			}
+		}
 		int idx = path.find(url, 0);
 		std::string  ending = std::string(path.begin() + url.size(), path.end());
-		if (server->locations[url].more_info.count("root") == 1)
-			path = server->locations[url].more_info["root"] + ending;
 		
+		
+		if (server->locations[url].more_info.count("cgi_bin") == 1)
+		{
+			cgi_arg = std::string(path.begin() + url.size(), path.end());
+			if (server->locations[url].more_info.count("root") == 1)
+				path = server->locations[url].more_info["root"] + "/" + remove_delim(server->locations[url].more_info["cgi_bin"], " \t\v\r");
+			std::cout << "ARG_CGI:" << cgi_arg << "\n";
+			return(1);
+		}
+		else
+		{
+			if (server->locations[url].more_info.count("root") == 1)
+				path = server->locations[url].more_info["root"] + ending;
+		}
+
 		if (dir_exists(path.c_str()) <= 0)
 			return (404);
 
