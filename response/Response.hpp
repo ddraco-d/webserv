@@ -6,7 +6,7 @@
 /*   By: efumiko <efumiko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 16:39:39 by efumiko           #+#    #+#             */
-/*   Updated: 2021/06/16 19:15:00 by efumiko          ###   ########.fr       */
+/*   Updated: 2021/06/16 21:17:58 by efumiko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,10 +18,15 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <dirent.h>
+#include <fcntl.h>
 
 #include <sstream>
 #define SSTR( x ) static_cast< std::ostringstream & >( \
         ( std::ostringstream() << std::dec << x ) ).str()
+
+#define DRCT 0
+#define FILE 1
+#define NON_EXIST -1
 
 class Request;
 class Config;
@@ -47,7 +52,9 @@ private:
 	std::string _host;
 	size_t 		_port;
 
+	std::string _request_content;
 	std::string _upload_path;
+	std::string _name_file;
 	std::string _res;
 public:
 	Response();
@@ -65,6 +72,7 @@ public:
 	std::string read_file(std::string filepath);
 	void initReasonPhrases();
 
+	int getTypeFile(std::string filepath);
 
 	//bool isDirectory();
 	//bool isCGI();

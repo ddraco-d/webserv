@@ -6,7 +6,7 @@
 /*   By: efumiko <efumiko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/15 18:42:33 by efumiko           #+#    #+#             */
-/*   Updated: 2021/06/16 20:21:34 by efumiko          ###   ########.fr       */
+/*   Updated: 2021/06/16 21:49:33 by efumiko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,11 @@ Response::Response(void)
     _code = 200;
     _method = "GET";
     //_path_to_res = "./test/www/index.html";
-    _path_to_res = "./test/www/";
+    _path_to_res = "./test/www/new_file";
+
+
+	_upload_path = "./test/www/tmp/";
+	_name_file = "new_file";
 }
 
 Response::Response(const Request &request_conf, const Config &serv_conf)
@@ -74,15 +78,12 @@ std::string Response::getResponse()
     }
 	//if (isCGI()) {}
 
-	if (_method == "GET") {
+	if (_method == "GET")
 		return get_method();
-	}
-	if (_method == "POST") {
+	if (_method == "POST")
 		return post_method();
-	}
-	if (_method == "DELETE") {
+	if (_method == "DELETE")
 		return delete_method();
-	}
 	return NULL;
 }
 
@@ -159,48 +160,33 @@ std::string Response::post_method()
 	int rtn = 0;
 	int type;
 	std::string path;
+	std::string name_header;
 
 	if (_upload_path.size() > 0)
+		path = _upload_path + _name_file;
+	else
+		path = _path_to_res;
+	
+	int typeFile;
+	typeFile = getTypeFile(path);
+	if (typeFile != DRCT)
 	{
-		path = _upload_path;
+		if ((fd = open(path.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0644)) == -1)
+		{
+			_code = 500;
+			return (createResponse(getErrorPage()));
+		}
+		write(fd, _request_content.c_str(), _request_content.length());
+		close(fd);
+		_code = (typeFile == FILE ? 200 : 201); 
+		name_header = (typeFile == FILE ? "Content-Location" : "Location");
+		_headers[name_header] = _res;
+		return (createResponse(""));
 	}
-	return "";
+	_code = 500;
+	return (createResponse((getErrorPage())));
 }
-	// else
-	// 	path = ressource_path;
-	// DEBUG("POST path: " + path);
-	// type = pathType(path, NULL);
-	// try
-	// {
-	// 	if (type == 1)
-	// 	{
-	// 		if ((fd = open(path.c_str(), O_WRONLY | O_TRUNC, 0644)) == -1)
-	// 			throw(throwMessageErrno("TO CHANGE"));
-	// 		write(fd, _header_block.getContent().c_str(), _header_block.getContent().length());
-	// 		close(fd);
-	// 		rtn = 200;
-	// 		headers["Content-Location"] = _header_block.getRequestLine()._request_target;
-	// 	}
-	// 	else if (type == 0)
-	// 	{
-	// 		if ((fd = open(path.c_str(), O_WRONLY | O_APPEND | O_CREAT, 0644)) == -1)
-	// 			return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
-	// 		write(fd, _header_block.getContent().c_str(), _header_block.getContent().length());
-	// 		close(fd);
-	// 		rtn = 201;
-	// 		headers["Location"] = _header_block.getRequestLine()._request_target;
-	// 	}
-	// 	else
-	// 		return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
-	// }
-	// catch (std::exception & ex)
-	// {
-	// 	throwError(ex);
-	// }
-	// return (_generateResponse(rtn, headers, ""));
-//}
 
-// todo: переписать функцию
 std::string Response::read_file(std::string filepath)
 {
 	std::ifstream		f;
@@ -222,6 +208,23 @@ std::string Response::read_file(std::string filepath)
 	}
 	_code = 404;
 	return ("");
+}
+
+
+// todo: функционал getTypeFile и isFile объединить в одну функцию
+
+int	Response::getTypeFile(std::string filepath)
+{
+	struct stat s;
+	if (stat(filepath.c_str(), &s) == 0 )
+	{
+		if (s.st_mode & S_IFREG)
+			return FILE;
+		else
+			return DRCT;
+	}
+	else
+		return NON_EXIST;
 }
 
 bool	Response::isFile(std::string filepath)
@@ -409,7 +412,15 @@ std::string Response::formatDate(time_t date)
 
 std::string Response::getErrorPage()
 {
-    return ("ERROR PAGE");
+	std::string errorPage;
+
+	// если в конфиге указаны error_page	
+	//if (_serv_conf.error_pages.count(_code) > 0)
+	//	return (read_file(_serv_conf.error_pages[_code]));
+	errorPage = read_file("./test/www/listing.html");
+	errorPage = replace(errorPage, "$1", SSTR(_code));
+	errorPage = replace(errorPage, "$2", getReasonPhrase());
+	return (errorPage);
 }
 
 int main() {
