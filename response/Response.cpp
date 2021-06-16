@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: efumiko <efumiko@student.21-school.ru>     +#+  +:+       +#+        */
+/*   By: efumiko <efumiko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/15 18:42:33 by efumiko           #+#    #+#             */
-/*   Updated: 2021/06/16 00:04:34 by efumiko          ###   ########.fr       */
+/*   Updated: 2021/06/16 20:21:34 by efumiko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 
 Response::Response(void)
 {
+	_host = "localhost";
+	_port = 8000;
+
     _res = "www/";
     _code = 200;
     _method = "GET";
@@ -31,7 +34,9 @@ Response::Response(const Request &request_conf, const Config &serv_conf)
 	//_method = request_conf.getMethod();
 	_method = "GET";
 	//_path_to_res = request.conf.getPath();
-	_path_to_res = "./test/www/index.html";
+	
+	_path_to_res = "test/www/index.html";
+	//_path_to_res = "./test/www/index.html";
 }
 
 Response::~Response()
@@ -62,55 +67,39 @@ std::string Response::getResponse()
 	}
 	if (_code == 404)
 		return (createResponse(getErrorPage()));
-	
-	// путь к ресурсу
-	//path_to_res = _location.getRoot(); // путь к корню из конфига
-	//if (path_to_res[path_to_res.size() - 1] == '/') // убираем /
-	//	path_to_res = std::string(path_to_res, 0, path_to_res.size() - 1);
-	//path_to_res += request_conf.getPath();
 
 	// автоиндекс и путь это директория.
-	if (isFile() == false) {
-        return (createResponse(getListingHTMLPage(_res)));
+	if (isFile(_path_to_res) == false) {
+        return (createResponse(getListing()));
     }
 	//if (isCGI()) {}
 
 	if (_method == "GET") {
 		return get_method();
 	}
-	// if (_method == "POST") {
-	// 	return post_method();
-	// }
+	if (_method == "POST") {
+		return post_method();
+	}
 	if (_method == "DELETE") {
 		return delete_method();
 	}
 	return NULL;
 }
 
-std::string Response::getListingHTMLPage(std::string ressource)
+std::string Response::getListing()
 {
 	std::string base;
 	std::string listing;
 	std::string link_base;
-	size_t i;
 	struct dirent *en;
 	DIR *dr;
 
-    std::string tmp_path_to_res = _path_to_res;
-    _path_to_res = "./test/www/listing.html";
-	read_file();
-	base = _body_content;
-    base = replace(base, "$1", ressource);
-	if ((dr = opendir(tmp_path_to_res.c_str())) == NULL)
+	base = read_file("./test/www/listing.html");
+	base = replace(base, "$1", _res);
+	if ((dr = opendir(_path_to_res.c_str())) == NULL)
 		return ("ERROR OPENDIR");
-	i = 0;
-	// while (_header_block.getRequestLine()._request_target[i] && _header_block.getRequestLine()._request_target[i] != '?')
-	// 	link_base += _header_block.getRequestLine()._request_target[i++];
-	// if (link_base[link_base.size() - 1] != '/')
-	// 	link_base += '/';
-	link_base = "testtest";
     while ((en = readdir(dr)) != 0)
-		listing += "<li><a href=\"" + link_base + std::string(en->d_name) +  "\">" + std::string(en->d_name) + "</a></li>";
+		listing += "<li><a href=\"" + _host + ":" + SSTR(_port) + "/" + _res + std::string(en->d_name) +  "\">" + std::string(en->d_name) + "</a></li>\n";
 	closedir(dr);
 	base = replace(base, "$2", listing);
 	return (base);
@@ -130,7 +119,7 @@ std::string Response::delete_method()
 {
     int type;
 
-	if (isFile() && (remove(_path_to_res.c_str()) == 0))
+	if (isFile(_path_to_res) && (remove(_path_to_res.c_str()) == 0))
 	{
         _code = 204;
 		return (createResponse(""));
@@ -142,8 +131,8 @@ std::string Response::delete_method()
 std::string Response::get_method()
 {
     time_t file_date;
-	int code_read = read_file();
-	if (code_read == 403 || code_read == 404)
+	_body_content = read_file(_path_to_res);
+	if (_code == 403 || _code == 404)
 		return (createResponse(getErrorPage()));
 	_headers["Content-Type"] = getMIME();
 	_headers["Last-Modified"] = getLastModif();
@@ -156,7 +145,7 @@ std::string Response::getLastModif()
 	struct stat buffer;
 	struct timezone tz;
 	struct timeval t;
-    time_t last_date;
+	time_t last_date;
 
 	gettimeofday(&t, &tz);
 	int exist = stat(_path_to_res.c_str(), &buffer);
@@ -164,36 +153,81 @@ std::string Response::getLastModif()
     return (formatDate(last_date));
 }
 
-// todo: переписать функцию
-int Response::read_file()
+std::string Response::post_method()
 {
-	std::ifstream		file;
-	std::stringstream	buffer;
+	int fd = -1;
+	int rtn = 0;
+	int type;
+	std::string path;
 
-	file.open(_path_to_res.c_str(), std::ifstream::in);
-	if (isFile())
+	if (_upload_path.size() > 0)
 	{
-		if (file.is_open() == false)
+		path = _upload_path;
+	}
+	return "";
+}
+	// else
+	// 	path = ressource_path;
+	// DEBUG("POST path: " + path);
+	// type = pathType(path, NULL);
+	// try
+	// {
+	// 	if (type == 1)
+	// 	{
+	// 		if ((fd = open(path.c_str(), O_WRONLY | O_TRUNC, 0644)) == -1)
+	// 			throw(throwMessageErrno("TO CHANGE"));
+	// 		write(fd, _header_block.getContent().c_str(), _header_block.getContent().length());
+	// 		close(fd);
+	// 		rtn = 200;
+	// 		headers["Content-Location"] = _header_block.getRequestLine()._request_target;
+	// 	}
+	// 	else if (type == 0)
+	// 	{
+	// 		if ((fd = open(path.c_str(), O_WRONLY | O_APPEND | O_CREAT, 0644)) == -1)
+	// 			return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
+	// 		write(fd, _header_block.getContent().c_str(), _header_block.getContent().length());
+	// 		close(fd);
+	// 		rtn = 201;
+	// 		headers["Location"] = _header_block.getRequestLine()._request_target;
+	// 	}
+	// 	else
+	// 		return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
+	// }
+	// catch (std::exception & ex)
+	// {
+	// 	throwError(ex);
+	// }
+	// return (_generateResponse(rtn, headers, ""));
+//}
+
+// todo: переписать функцию
+std::string Response::read_file(std::string filepath)
+{
+	std::ifstream		f;
+	std::stringstream	buf;
+	std::string			res;
+
+	if (isFile(filepath))
+	{
+		f.open(filepath.c_str(), std::ifstream::in);
+		if (f.is_open() == false)
 		{
 			_code = 403;
-			return 403;
+			return ("");
 		}
-		buffer << file.rdbuf();
-		_body_content = buffer.str();
-		file.close();
-	} // todo: autoindex
-	else
-	{
-		_code = 404;
-		return (404);
+		buf << f.rdbuf();
+		res = buf.str();
+		f.close();
+		return (res);
 	}
-	return (200);
+	_code = 404;
+	return ("");
 }
 
-bool	Response::isFile()
+bool	Response::isFile(std::string filepath)
 {
 	struct stat s;
-	if (stat(_path_to_res.c_str(), &s) == 0 )
+	if (stat(filepath.c_str(), &s) == 0 )
 	{
 		if (s.st_mode & S_IFDIR)
 			return false;
@@ -290,63 +324,55 @@ std::string Response::getMIME()
 	return ("application/octet-stream");
 }
 
+void Response::initReasonPhrases() 
+{
+	_reason_phrases[200] = "OK";
+	_reason_phrases[201] = "Created";
+	_reason_phrases[202] = "Accepted";
+	_reason_phrases[204] = "No Content";
+	_reason_phrases[300] = "Multiple Choices";
+	_reason_phrases[301] = "Moved Permanently";
+	_reason_phrases[302] = "Found";
+	_reason_phrases[303] = "See Other";
+	_reason_phrases[307] = "Temporary Redirect";
+	_reason_phrases[400] = "Bad Request";
+	_reason_phrases[401] = "Unauthorized";
+	_reason_phrases[403] = "Forbidden";
+	_reason_phrases[404] = "Not Found";
+	_reason_phrases[405] = "Method Not Allowed";
+	//_reason_phrases[408] = "Request Timeout";
+	//_reason_phrases[409] = "Conflict";
+	//_reason_phrases[410] = "Gone";
+	//_reason_phrases[411] = "Length Required";
+	//_reason_phrases[412] = "Precondition Failed";
+	_reason_phrases[413] = "Payload Too Large";
+	_reason_phrases[414] = "URI Too Long";
+	//_reason_phrases[415] = "Unsupported Media Type";
+	//_reason_phrases[416] = "Range Not Satisfiable";
+	//_reason_phrases[417] = "Expectation Failed";
+	//_reason_phrases[426] = "Upgrade Required";
+	_reason_phrases[500] = "Internal Server Error";
+	_reason_phrases[501] = "Not Implemented";
+	_reason_phrases[502] = "Bad Gateway";
+	_reason_phrases[503] = "Service Unavailable";
+	_reason_phrases[504] = "Gateway Timeout";
+	_reason_phrases[505] = "HTTP Version Not Supported";
+}
+
 std::string Response::getReasonPhrase()
 {
-	std::map<std::size_t, std::string> m;
-
-	m[100] = "Continue";
-	m[101] = "Switching Protocols";
-	m[200] = "OK";
-	m[201] = "Created";
-	m[202] = "Accepted";
-	m[203] = "Non-Authoritative Information";
-	m[204] = "No Content";
-	m[205] = "Reset Content";
-	m[206] = "Partial Content";
-	m[300] = "Multiple Choices";
-	m[301] = "Moved Permanently";
-	m[302] = "Found";
-	m[303] = "See Other";
-	m[304] = "Not Modified";
-	m[305] = "Use Proxy";
-	m[307] = "Temporary Redirect";
-	m[400] = "Bad Request";
-	m[401] = "Unauthorized";
-	m[402] = "Payment Required";
-	m[403] = "Forbidden";
-	m[404] = "Not Found";
-	m[405] = "Method Not Allowed";
-	m[406] = "Not Acceptable";
-	m[407] = "Proxy Authentication Required";
-	m[408] = "Request Timeout";
-	m[409] = "Conflict";
-	m[410] = "Gone";
-	m[411] = "Length Required";
-	m[412] = "Precondition Failed";
-	m[413] = "Payload Too Large";
-	m[414] = "URI Too Long";
-	m[415] = "Unsupported Media Type";
-	m[416] = "Range Not Satisfiable";
-	m[417] = "Expectation Failed";
-	m[426] = "Upgrade Required";
-	m[500] = "Internal Server Error";
-	m[501] = "Not Implemented";
-	m[502] = "Bad Gateway";
-	m[503] = "Service Unavailable";
-	m[504] = "Gateway Timeout";
-	m[505] = "HTTP Version Not Supported";
-	// добавить проверку
-	return m[_code];
+	return _reason_phrases[_code];
 }
 
 std::string Response::createResponse(std::string body)
 {
-	_headers["Content-Length"] = SSTR(body.size());
-	_headers["Server"] = "MissionImpossible";
-	_headers["Date"] = getCurrentDate();
 	_response += "HTTP/1.1 ";
 	_response += SSTR(_code << " ");
 	_response += getReasonPhrase() + "\r\n";
+	
+	_headers["Content-Length"] = SSTR(body.size());
+	_headers["Server"] = "MissionImpossible";
+	_headers["Date"] = getCurrentDate();
 	
 	std::map<std::string, std::string>::iterator it;
 	it = _headers.begin();

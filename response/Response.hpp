@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: efumiko <efumiko@student.21-school.ru>     +#+  +:+       +#+        */
+/*   By: efumiko <efumiko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 16:39:39 by efumiko           #+#    #+#             */
-/*   Updated: 2021/06/15 23:35:12 by efumiko          ###   ########.fr       */
+/*   Updated: 2021/06/16 19:15:00 by efumiko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,12 @@ private:
 	std::string	_method;
 	std::string	_path_to_res;
 	
+	std::map<std::size_t, std::string> _reason_phrases;
+	
+	std::string _host;
+	size_t 		_port;
 
+	std::string _upload_path;
 	std::string _res;
 public:
 	Response();
@@ -56,16 +61,17 @@ public:
 	std::string getCurrentDate(void);
 	std::string formatDate(time_t date);
 	std::string getReasonPhrase();
-	std::string getListingHTMLPage(std::string ressource);
-	int read_file();
+	std::string getListing();
+	std::string read_file(std::string filepath);
+	void initReasonPhrases();
 
 
-	bool isDirectory();
-	bool isCGI();
-	bool isFile();
+	//bool isDirectory();
+	//bool isCGI();
+	bool isFile(std::string filepath);
 
 	std::string get_method();
-	//std::string post_method();
+	std::string post_method();
 	std::string delete_method();
 
 	std::string replace(std::string source, std::string to_replace, std::string new_value);
