@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 		std::string fn, ln;
 		fn = std::string(table[0].begin() + table[0].find("=") + 1, table[0].end());
 		ln = std::string(table[1].begin() + table[1].find("=") + 1, table[1].end());
-		html << "<head>\n" << "Hello, " << fn << " " << ln << " FUC YOU! ;) by web" << "\n</head>";
+		html << "<head>\n<style>\nbody {\ncolor: #ffffff;\nbackground: linear-gradient(#151866, #252B33);\npadding: 100px;\n}\na {\ncolor: #1abc90;\nfont-size: 2rem;\n}\n</style>\n<body>\n" << "Hello, " << fn << " " << ln << " FUC YOU! ;) from server" << "\n</head>";
 		std::cout << "=========GG VP=======\n" << argv[1] << "\n";
 		html.close();
 	}
