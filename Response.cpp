@@ -134,7 +134,7 @@ std::string Response::run_cgi()
 		argv[1] = (char *)NULL;
 		envp[0] = (char *)("REQUEST_METHOD="+_method).c_str();
 		envp[1] = (char *)("SERVER_PROTOCOL=HTTP/1.1");
-		envp[2] = (char *)("PATH_INFO="+_res).c_str();
+		envp[2] = (char *)("PATH_INFO=./cgi_in.txt");
 		envp[3] = (char *)NULL;
 		if (!freopen("./cgi_in.txt", "w", stdout))
 			std::cout << "NO OPEN OUT\n";

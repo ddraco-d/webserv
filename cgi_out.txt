@@ -1,15 +1,4 @@
-<head>
-<style>
-body {
-color: #ffffff;
-background: linear-gradient(#151866, #252B33);
-padding: 100px;
-}
-a {
-color: #1abc90;
-font-size: 2rem;
-}
-</style>
-<body>
-Hello, Ivan2 Ivanov2 FUC YOU! ;) from server
-</head>
+Status: 200 OK
+Content-Type: text/html; charset=utf-8
+
+I?FIRST_NAME=IVAN2&LAST_NAME=IVANOV2
