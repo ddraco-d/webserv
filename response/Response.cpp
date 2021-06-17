@@ -6,7 +6,7 @@
 /*   By: efumiko <efumiko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/15 18:42:33 by efumiko           #+#    #+#             */
-/*   Updated: 2021/06/16 21:49:33 by efumiko          ###   ########.fr       */
+/*   Updated: 2021/06/17 12:03:55 by efumiko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,33 +14,67 @@
 
 Response::Response(void)
 {
+	initReasonPhrases();
+	initMIME();
+
+	// =====for autoindex=====
 	_host = "localhost";
 	_port = 8000;
-
-    _res = "www/";
     _code = 200;
-    _method = "GET";
-    //_path_to_res = "./test/www/index.html";
+	
+	// =====GET=====
+    // _method = "GET";
+    // _path_to_res = "./test/www/index.html";
+
+	// =====autoindex=====
+	//_autoindex = true;
+    // _res = "www/";
+	// _path_to_res = "./test/www/";
+
+	// =====POST create=====
+	_method = "POST";
     _path_to_res = "./test/www/new_file";
-
-
 	_upload_path = "./test/www/tmp/";
-	_name_file = "new_file";
+	_name_file = "new_file.html";
+	_request_content = "Hello world123123";
+	_res = "/www/tmp/new_file";
+
+	// =====DELETE=====
+	// _method = "DELETE";
+	// _path_to_res = "./test/www/tmp/new_file";
+	// _res = "/www/tmp/new_file";
 }
 
 Response::Response(const Request &request_conf, const Config &serv_conf)
 {
-	//_req_conf = request_conf;
-	//_serv_conf = serv_conf;
+	// ====не факт, что эти штуки нужны)) возможно, только как параметры для cgi===
+	//_req_conf = request_conf;  
+	//_serv_conf = serv_conf; // используется в getErrorPage()
+
+	// ===первая строка Request===
 	//_code = request_conf.getCode();
-	_code = 200;
-	//_location = getLocation(request_conf, serv_conf);
+	// _res = request.getRes();
 	//_method = request_conf.getMethod();
-	_method = "GET";
-	//_path_to_res = request.conf.getPath();
 	
-	_path_to_res = "test/www/index.html";
-	//_path_to_res = "./test/www/index.html";
+	// ===итоговый путь к папке или файлу===
+	//_path_to_res = request.getPath();
+
+	// ===имя файла, если есть===
+	// _name_file = request.getNameFile();
+	
+	// ===контент, который отправляем с помощью POST===
+	// _request_content = request.getRequestContent();
+
+	// ===путь к папке, в которой будем сохранять файлы для POST===
+	// _upload_path = serv_conf.getUploadPath();
+	
+	// параметры сервера
+	// _host = serv_conf.getHost();
+	// _port = serv_conf.getPort();
+	// _autoindex = serv_conf.getAutoIndex();
+
+	// initReasonPhrases();
+	// initMIME();
 }
 
 Response::~Response()
@@ -48,11 +82,11 @@ Response::~Response()
 
 std::string Response::getResponse()
 {
-	if (_code == 413)
+	if ((_code == 413) || (_code == 404))
 		return (createResponse(getErrorPage()));
 	if (_code == 405)
 	{
-		//std::vector<std::string> methods = _location.getMethods();
+		//std::vector<std::string> methods = _req_conf.getMethods();
 		std::vector<std::string> methods;
         methods.push_back("GET");
         methods.push_back("POST");
@@ -69,11 +103,9 @@ std::string Response::getResponse()
 		_headers["Allow"] = methods_str;
 		return (createResponse(getErrorPage()));
 	}
-	if (_code == 404)
-		return (createResponse(getErrorPage()));
 
 	// автоиндекс и путь это директория.
-	if (isFile(_path_to_res) == false) {
+	if ((getTypeFile(_path_to_res) == DRCT) && _autoindex) {
         return (createResponse(getListing()));
     }
 	//if (isCGI()) {}
@@ -120,7 +152,7 @@ std::string Response::delete_method()
 {
     int type;
 
-	if (isFile(_path_to_res) && (remove(_path_to_res.c_str()) == 0))
+	if ((getTypeFile(_path_to_res) == FILE) && (remove(_path_to_res.c_str()) == 0))
 	{
         _code = 204;
 		return (createResponse(""));
@@ -181,7 +213,7 @@ std::string Response::post_method()
 		_code = (typeFile == FILE ? 200 : 201); 
 		name_header = (typeFile == FILE ? "Content-Location" : "Location");
 		_headers[name_header] = _res;
-		return (createResponse(""));
+		return (typeFile == FILE ? createResponse(_request_content) : createResponse(""));
 	}
 	_code = 500;
 	return (createResponse((getErrorPage())));
@@ -193,7 +225,7 @@ std::string Response::read_file(std::string filepath)
 	std::stringstream	buf;
 	std::string			res;
 
-	if (isFile(filepath))
+	if (getTypeFile(filepath) == FILE)
 	{
 		f.open(filepath.c_str(), std::ifstream::in);
 		if (f.is_open() == false)
@@ -210,9 +242,6 @@ std::string Response::read_file(std::string filepath)
 	return ("");
 }
 
-
-// todo: функционал getTypeFile и isFile объединить в одну функцию
-
 int	Response::getTypeFile(std::string filepath)
 {
 	struct stat s;
@@ -227,25 +256,68 @@ int	Response::getTypeFile(std::string filepath)
 		return NON_EXIST;
 }
 
-bool	Response::isFile(std::string filepath)
+void Response::initMIME()
 {
-	struct stat s;
-	if (stat(filepath.c_str(), &s) == 0 )
-	{
-		if (s.st_mode & S_IFDIR)
-			return false;
-		else if (s.st_mode & S_IFREG)
-			return true;
-		else
-			return false;
-	}
-	else
-		return false;
+	_mime["aac"] = "audio/aac";
+	_mime["abw"] = "application/x-abiword";
+	_mime["arc"] = "application/octet-stream";
+	_mime["avi"] = "video/x-msvideo";
+	_mime["azw"] = "application/vnd.amazon.ebook";
+	_mime["bin"] = "application/octet-stream";
+	_mime["bmp"] = "image/bmp";
+	_mime["bz"] = "application/x-bzip";
+	_mime["bz2"] = "application/x-bzip2";
+	_mime["csh"] = "application/x-csh";
+	_mime["css"] = "text/css";
+	_mime["csv"] = "text/csv";
+	_mime["doc"] = "application/msword";
+	_mime["docx"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+	_mime["eot"] = "application/vnd.ms-fontobject";
+	_mime["epub"] = "application/epub+zip";
+	_mime["gif"] = "image/gif";
+	_mime["htm"] = "text/html";
+	_mime["html"] = "text/html";
+	_mime["ico"] = "image/x-icon";
+	_mime["ics"] = "text/calendar";
+	_mime["jar"] = "application/java-archive";
+	_mime["jpeg"] = "image/jpeg";
+	_mime["jpg"] = "image/jpeg";
+	_mime["js"] = "application/javascript";
+	_mime["json"] = "application/json";
+	_mime["mid"] = "audio/midi";
+	_mime["midi"] = "audio/midi";
+	_mime["mpeg"] = "video/mpeg";
+	_mime["mpkg"] = "application/vnd.apple.installer+xml";
+	_mime["odp"] = "application/vnd.oasis.opendocument.presentation";
+	_mime["ods"] = "application/vnd.oasis.opendocument.spreadsheet";
+	_mime["odt"] = "application/vnd.oasis.opendocument.text";
+	_mime["oga"] = "audio/ogg";
+	_mime["ogv"] = "video/ogg";
+	_mime["ogx"] = "application/ogg";
+	_mime["otf"] = "font/otf";
+	_mime["png"] = "image/png";
+	_mime["pdf"] = "application/pdf";
+	_mime["ppt"] = "application/vnd.ms-powerpoint";
+	_mime["pptx"] = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+	_mime["rar"] = "application/x-rar-compressed";
+	_mime["rtf"] = "application/rtf";
+	_mime["sh"] = "application/x-sh";
+	_mime["svg"] = "image/svg+xml";
+	_mime["woff"] = "font/woff";
+	_mime["woff2"] = "font/woff2";
+	_mime["xhtml"] = "application/xhtml+xml";
+	_mime["xls"] = "application/vnd.ms-excel";
+	_mime["xlsx"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+	_mime["xml"] = "application/xml";
+	_mime["xul"] = "application/vnd.mozilla.xul+xml";
+	_mime["zip"] = "application/zip";
+	_mime["3gp"] = "audio/3gpp";
+	_mime["3g2"] = "audio/3gpp2";
+	_mime["7z"] = "application/x-7z-compressed";
 }
 
 std::string Response::getMIME()
 {
-	std::map<std::string, std::string> m;
 	std::string ext;
 	size_t i;
 
@@ -255,75 +327,8 @@ std::string Response::getMIME()
 	if (i == 0)
 		return ("text/plain");
 	ext = std::string(_path_to_res, i + 1, _path_to_res.size() - i);
-	m["aac"] = "audio/aac";
-	m["abw"] = "application/x-abiword";
-	m["arc"] = "application/octet-stream";
-	m["avi"] = "video/x-msvideo";
-	m["azw"] = "application/vnd.amazon.ebook";
-	m["bin"] = "application/octet-stream";
-	m["bmp"] = "image/bmp";
-	m["bz"] = "application/x-bzip";
-	m["bz2"] = "application/x-bzip2";
-	m["csh"] = "application/x-csh";
-	m["css"] = "text/css";
-	m["csv"] = "text/csv";
-	m["doc"] = "application/msword";
-	m["docx"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-	m["eot"] = "application/vnd.ms-fontobject";
-	m["epub"] = "application/epub+zip";
-	m["gif"] = "image/gif";
-	m["htm"] = "text/html";
-	m["html"] = "text/html";
-	m["ico"] = "image/x-icon";
-	m["ics"] = "text/calendar";
-	m["jar"] = "application/java-archive";
-	m["jpeg"] = "image/jpeg";
-	m["jpg"] = "image/jpeg";
-	m["js"] = "application/javascript";
-	m["json"] = "application/json";
-	m["mid"] = "audio/midi";
-	m["midi"] = "audio/midi";
-	m["mpeg"] = "video/mpeg";
-	m["mpkg"] = "application/vnd.apple.installer+xml";
-	m["odp"] = "application/vnd.oasis.opendocument.presentation";
-	m["ods"] = "application/vnd.oasis.opendocument.spreadsheet";
-	m["odt"] = "application/vnd.oasis.opendocument.text";
-	m["oga"] = "audio/ogg";
-	m["ogv"] = "video/ogg";
-	m["ogx"] = "application/ogg";
-	m["otf"] = "font/otf";
-	m["png"] = "image/png";
-	m["pdf"] = "application/pdf";
-	m["ppt"] = "application/vnd.ms-powerpoint";
-	m["pptx"] = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-	m["rar"] = "application/x-rar-compressed";
-	m["rtf"] = "application/rtf";
-	m["sh"] = "application/x-sh";
-	m["svg"] = "image/svg+xml";
-	m["swf"] = "application/x-shockwave-flash";
-	m["tar"] = "application/x-tar";
-	m["tif"] = "image/tiff";
-	m["tiff"] = "image/tiff";
-	m["ts"] = "application/typescript";
-	m["ttf"] = "font/ttf";
-	m["vsd"] = "application/vnd.visio";
-	m["wav"] = "audio/x-wav";
-	m["weba"] = "audio/webm";
-	m["webm"] = "video/webm";
-	m["webp"] = "image/webp";
-	m["woff"] = "font/woff";
-	m["woff2"] = "font/woff2";
-	m["xhtml"] = "application/xhtml+xml";
-	m["xls"] = "application/vnd.ms-excel";
-	m["xlsx"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-	m["xml"] = "application/xml";
-	m["xul"] = "application/vnd.mozilla.xul+xml";
-	m["zip"] = "application/zip";
-	m["3gp"] = "audio/3gpp";
-	m["3g2"] = "audio/3gpp2";
-	m["7z"] = "application/x-7z-compressed";
-	if (m.count(ext))
-		return (m[ext]);
+	if (_mime.count(ext))
+		return (_mime[ext]);
 	return ("application/octet-stream");
 }
 
@@ -414,10 +419,11 @@ std::string Response::getErrorPage()
 {
 	std::string errorPage;
 
-	// если в конфиге указаны error_page	
+	// если в конфиге указаны error_page
+	// error_pages - это map<int, string> определенному коду ошибки соответствует своя error_page страница
 	//if (_serv_conf.error_pages.count(_code) > 0)
 	//	return (read_file(_serv_conf.error_pages[_code]));
-	errorPage = read_file("./test/www/listing.html");
+	errorPage = read_file("./test/www/error.html");
 	errorPage = replace(errorPage, "$1", SSTR(_code));
 	errorPage = replace(errorPage, "$2", getReasonPhrase());
 	return (errorPage);

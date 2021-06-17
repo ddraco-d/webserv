@@ -6,7 +6,7 @@
 /*   By: efumiko <efumiko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 16:39:39 by efumiko           #+#    #+#             */
-/*   Updated: 2021/06/16 21:17:58 by efumiko          ###   ########.fr       */
+/*   Updated: 2021/06/17 11:23:57 by efumiko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,12 @@ private:
 	std::string	_path_to_res;
 	
 	std::map<std::size_t, std::string> _reason_phrases;
+	std::map<std::string, std::string> _mime;
+
 	
 	std::string _host;
 	size_t 		_port;
+	bool		_autoindex;
 
 	std::string _request_content;
 	std::string _upload_path;
@@ -71,12 +74,11 @@ public:
 	std::string getListing();
 	std::string read_file(std::string filepath);
 	void initReasonPhrases();
+	void initMIME();
+
 
 	int getTypeFile(std::string filepath);
-
-	//bool isDirectory();
 	//bool isCGI();
-	bool isFile(std::string filepath);
 
 	std::string get_method();
 	std::string post_method();
