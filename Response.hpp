@@ -22,7 +22,7 @@
 #include <sys/time.h>
 #include <dirent.h>
 #include <fcntl.h>
-
+#include <fstream>
 #include <sstream>
 #define SSTR( x ) static_cast< std::ostringstream & >( \
         ( std::ostringstream() << std::dec << x ) ).str()
@@ -38,11 +38,8 @@ private:
 	std::string _response;
 	std::string _first_line;
 	std::map<std::string, std::string> _headers;
-	//Location 	_location;
+
 	std::string _body_content;
-	
-	//Request 	_req_conf;
-	//Config 		_serv_conf;
 	
 	size_t		_code;
 	std::string	_method;
@@ -51,7 +48,7 @@ private:
 	std::map<std::size_t, std::string> _reason_phrases;
 	std::map<std::string, std::string> _mime;
 
-	std::string 	_host;
+	std::string _host;
 	uint16_t 	_port;
 	bool		_autoindex;
 
@@ -59,6 +56,9 @@ private:
 	std::string _upload_path;
 	std::string _name_file;
 	std::string _res;
+
+	bool		_is_cgi;
+	std::string	_cgi_arg;
 public:
 //	Response();
 //	Response(const Request &request_conf, const Config &serv_conf);
@@ -87,6 +87,7 @@ public:
 
 	std::string replace(std::string source, std::string to_replace, std::string new_value);
 	//Location getLocation(const Request &request_conf, const Config &serv_conf);
+	std::string run_cgi();
 };
 
 #endif

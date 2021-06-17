@@ -74,6 +74,9 @@ Response::Response(Request request)
 	_port = request.port;
 	_autoindex = request.autoindex;
 
+	_is_cgi = request.is_cgi;
+	_cgi_arg = request.cgi_arg;
+
 	 initReasonPhrases();
 	 initMIME();
 }
@@ -107,7 +110,8 @@ std::string Response::getResponse()
 	if ((getTypeFile(_path_to_res) == DRCT) && _autoindex) {
         return (createResponse(getListing()));
     }
-	//if (isCGI()) {}
+	if (_is_cgi)
+		return run_cgi();
 
 	if (_method == "GET")
 		return get_method();
@@ -116,6 +120,41 @@ std::string Response::getResponse()
 	if (_method == "DELETE")
 		return delete_method();
 	return NULL;
+}
+
+std::string Response::run_cgi()
+{
+	int		pid;
+	pid = fork();
+	if (pid == 0)
+	{
+		char *argv[2];
+		char *envp[4];
+		argv[0] = (char *)_path_to_res.c_str();
+		argv[1] = (char *)NULL;
+		envp[0] = (char *)("REQUEST_METHOD="+_method).c_str();
+		envp[1] = (char *)("SERVER_PROTOCOL=HTTP/1.1");
+		envp[2] = (char *)("PATH_INFO="+_res).c_str();
+		envp[3] = (char *)NULL;
+		if (!freopen("./cgi_in.txt", "w", stdout))
+			std::cout << "NO OPEN OUT\n";
+		std::cout << _cgi_arg;
+		if (!freopen("./cgi_in.txt", "r", stdin))
+			std::cout << "NO OPEN IN\n";
+		if (!freopen("./cgi_out.txt", "w", stdout))
+			std::cout << "NO OPEN OUT\n";
+		if (execve(_path_to_res.c_str(), argv, envp) == -1)
+		{
+			std::cout << "CGI ERROR\n";
+		}
+		exit(0);
+	}
+	wait(&pid);
+	
+	std::ifstream out("./cgi_out.txt");
+	std::stringstream answer;
+	answer << out.rdbuf();
+	return (createResponse(answer.str()));
 }
 
 std::string Response::getListing()
@@ -326,8 +365,6 @@ std::string Response::getMIME()
 	i = _path_to_res.size() - 1;
 	while (i > 0 && _path_to_res[i] != '.')
 		--i;
-	if (i == 0)
-		return ("text/plain");
 	ext = std::string(_path_to_res, i + 1, _path_to_res.size() - i);
 	if (_mime.count(ext))
 		return (_mime[ext]);

@@ -33,6 +33,7 @@ public:
 	std::string body;
 
 	std::string cgi_arg;
+	bool		is_cgi;
 
 	std::map<std::string, std::string> headers;
 

@@ -87,8 +87,11 @@ Request::Request(char *buffer, Server *server)
 
 	path_post = "./";
 	autoindex = false;
+	is_cgi = false;
+
 	status_code = check_valid(server);
-	std::cout << "PATH: " << path << "\n";
+	std::cout << "REQ  PATH: " << req_path << "\n";
+	std::cout << "ITOG PATH: " << path << "\n";
 	if (autoindex == true)
 		std::cout << "autoindex: on\n";
 	else
@@ -172,8 +175,9 @@ int Request::check_valid_path(Server *server)
 		if (server->locations[url].more_info.count("root") == 1)
 				path = server->locations[url].more_info["root"] + ending;
 		
-		if (dir_exists(path.c_str()) <= 0)
-			return (404);
+		if (server->locations[url].more_info.count("cgi_bin") == 0)
+			if (dir_exists(path.c_str()) <= 0)
+				return (404);
 
 		if (server->locations[url].more_info.count("allow_methods") == 1)
 			if (server->locations[url].more_info["allow_methods"].find(method) == NO_FIND)
@@ -190,22 +194,16 @@ int Request::check_valid_path(Server *server)
 				return (413);
 		}
 		
-
-				/*
 		if (server->locations[url].more_info.count("cgi_bin") == 1)
 		{
-			cgi_arg = std::string(path.begin() + url.size(), path.end());
+			cgi_arg = ending;
+			is_cgi = true;
 			if (server->locations[url].more_info.count("root") == 1)
 				path = server->locations[url].more_info["root"] + "/" + remove_delim(server->locations[url].more_info["cgi_bin"], " \t\v\r");
-			std::cout << "ARG_CGI:" << cgi_arg << "\n";
-			return(404);
+			if (dir_exists(path.c_str()) <= 0)
+				return (404);
+			std::cout << "ARG_CGI:" << cgi_arg << "|\n";
 		}
-		else
-		{
-			if (server->locations[url].more_info.count("root") == 1)
-				path = server->locations[url].more_info["root"] + ending;
-		}
-		*/
 	}
 	return (0);
 }
@@ -217,6 +215,8 @@ int Request::check_valid(Server *server)
 	if (!(method == "GET" || method == "POST" || method == "DELETE"))
 		return (405);
 	if (!(version == "HTTP/1.1"))
+		return (505);
+	if (!(path[0] == '/'))
 		return (505);
 	return (check_valid_path(server));
 }
