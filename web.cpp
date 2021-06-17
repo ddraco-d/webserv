@@ -1,7 +1,7 @@
 
 #include <stdio.h>
 #include <sys/socket.h>
-#include <unistd.h>
+
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <string.h>
@@ -10,9 +10,10 @@
 #include <sstream>
 #include <vector>
 #include <fstream>
-
+#include <unistd.h>
 #include "Request.hpp"
 #include "Parcer.hpp"
+#include "Response.hpp"
 
 #define PORT 8000
 
@@ -21,14 +22,14 @@ class Web_server
 private:
 
 public:
-	Web_server(Server server);
+	Web_server(Server server, char **envp);
 	int 				server_fd;
 	int					new_socket;
 	struct sockaddr_in 	address;
 	int 				addrlen;
 };
 
-Web_server::Web_server(Server server)
+Web_server::Web_server(Server server, char **envp)
 {
 	addrlen = sizeof(address);
 	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
@@ -58,7 +59,7 @@ Web_server::Web_server(Server server)
             perror("In accept");
             exit(EXIT_FAILURE);
         }
-		std::vector<char> request(1400);
+		std::vector<char> request(14000);
         long valread = recv(new_socket, request.data(), request.size(), 0);
         printf("REQUEST:\n%s", request.data());
 		if(valread < 0)
@@ -67,6 +68,14 @@ Web_server::Web_server(Server server)
 		}
 		Request req(request.data(), &server);
 
+		Response res(req);
+		std::string response = res.getResponse();
+		send(new_socket , response.c_str(), strlen(response.c_str()), 0);
+		printf("RESPONSE:\n%s", response.c_str());
+		close(new_socket);
+	}
+
+/*
 		std::stringstream response;
 		response << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
 
@@ -81,24 +90,38 @@ Web_server::Web_server(Server server)
 		}
 		else if (req.status_code == 1)
 		{
+
+				std::string command;
+				command = req.path + " \"" + req.cgi_arg + "\"";
+				std::cout << "COMMAND: " << command.c_str() << "|\n";
+				char *argv[3];
+				argv[0] = (char *)req.path.c_str();
+				argv[1] = (char *)req.cgi_arg.c_str();
+				argv[2] = NULL;
+			
 			int		pid;
 			pid = fork();
 			if (pid == 0)
 			{
-				std::string command;
-				command = req.path + " \"" + req.cgi_arg + "\"";
-				std::cout << "COMMAND: " << command.c_str() << "|\n";
-				system(command.c_str());
-				usleep(100);
-				std::stringstream answer;
-				std::ifstream html_answer("./cgi/index_cgi.html");
-				answer << html_answer.rdbuf();
-				std::cout << "ANSWER:" << answer.str() << "|\n";
-				response << answer.str().length() << "\n\n" << answer.str();
-				send(new_socket , response.str().c_str(), strlen(response.str().c_str()), 0);
-				wait(&pid);
+				if (!freopen("./cgi_tester/test.txt", "r", stdin))
+					std::cout << "NO OPEN\n";
+				if (!freopen("./cgi_tester/resalt.txt", "w", stdout))
+					std::cout << "NO OPEN\n";
+				if (execve(req.path.c_str(), argv, envp) == -1)
+				{
+					std::cout << "CGI ERROR\n";
+				}
 				exit(0);
 			}
+			wait(&pid);
+			
+			std::stringstream answer;
+			std::ifstream html_answer("./cgi_tester/resalt.txt");
+			answer << html_answer.rdbuf();
+			std::cout << "ANSWER:" << answer.str() << "|\n";
+			response << answer.str().length() << "\n\n" << answer.str();
+			send(new_socket , response.str().c_str(), strlen(response.str().c_str()), 0);
+			
 		}
 		else
 		{
@@ -109,16 +132,15 @@ Web_server::Web_server(Server server)
 			response << "\n\n" << req.get();
 		}
 		printf("\n\nRESPONS:\n%s", response.str().c_str());
-        close(new_socket);
-	}
+	*/
 }
 
-int main(int argc, char **argv)
+int main(int argc, char **argv, char **envp)
 {
 	if (argc == 2)
 	{
 		Config config(argv[1]);
-		Web_server web(config.servers[0]);
+		Web_server web(config.servers[0], envp);
 	}
     return 0;
 }

@@ -37,8 +37,9 @@ std::string remove_delim(std::string item, std::string const &set)
 	return (item);
 }
 
-int main(int argc, char **argv)
+int main(int argc, char **argv, char **envp)
 {
+	std::cout << "====================\n" << argv[1] << "\n";
 	if (argc == 2)
 	{
 		std::ofstream html("./cgi/index_cgi.html");
