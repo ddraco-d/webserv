@@ -39,19 +39,13 @@ std::string remove_delim(std::string item, std::string const &set)
 
 int main(int argc, char **argv, char **envp)
 {
-	std::cout << "====================\n" << argv[1] << "\n";
-	if (argc == 2)
-	{
-		std::ofstream html("./cgi/index_cgi.html");
-		std::string argument = argv[1];
-		argument = remove_delim(argument, "?");
-		std::vector<std::string> table = split_arg(argument);
-		std::string fn, ln;
-		fn = std::string(table[0].begin() + table[0].find("=") + 1, table[0].end());
-		ln = std::string(table[1].begin() + table[1].find("=") + 1, table[1].end());
-		html << "<head>\n<style>\nbody {\ncolor: #ffffff;\nbackground: linear-gradient(#151866, #252B33);\npadding: 100px;\n}\na {\ncolor: #1abc90;\nfont-size: 2rem;\n}\n</style>\n<body>\n" << "Hello, " << fn << " " << ln << " FUC YOU! ;) from server" << "\n</head>";
-		std::cout << "=========GG VP=======\n" << argv[1] << "\n";
-		html.close();
-	}
+	std::string argument;
+	std::cin >> argument;
+	argument = remove_delim(argument, "?");
+	std::vector<std::string> table = split_arg(argument);
+	std::string fn, ln;
+	fn = std::string(table[0].begin() + table[0].find("=") + 1, table[0].end());
+	ln = std::string(table[1].begin() + table[1].find("=") + 1, table[1].end());
+	std::cout << "<head>\n<style>\nbody {\ncolor: #ffffff;\nbackground: linear-gradient(#151866, #252B33);\npadding: 100px;\n}\na {\ncolor: #1abc90;\nfont-size: 2rem;\n}\n</style>\n<body>\n" << "Hello, " << fn << " " << ln << " FUC YOU! ;) from server" << "\n</head>";
 	return (0);
 }
