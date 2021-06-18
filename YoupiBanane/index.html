@@ -1,0 +1,119 @@
+<head>
+    <style>
+        body {
+            color: #ffffff;
+            background: linear-gradient(#151866, #156b51);
+            padding: 250px;
+            }
+    </style>
+</head>
+<body>
+	<meta charset="utf-8">
+	<title>GG VP</title>
+	<p><img src="images/logo.jpg" alt="123" height="100" width="100" hspace="100"></p>
+
+	<style>
+table {
+border-spacing: 1;
+empty-cells: hide;
+border-radius: 10px;
+}
+td {
+padding: 10px 10px;
+text-align: center;
+border-bottom: 0px ;
+}
+td:nth-child(even) {
+background: #5ba865;
+border-radius: 10px;
+}
+td:nth-child(odd) {
+background: #17587e;
+}
+	</style>
+<style>
+button.button12 {
+  position: relative;
+  display: inline-block;
+  font-size: 100%;
+  font-weight: 10000;
+  color: #5ba865;
+  text-shadow: #053852 -1px 1px, #053852 1px 1px, #053852 1px -1px, #053852 -1px -1px;
+  text-decoration: none;
+  user-select: none;
+  padding: .3em .7em;
+  outline: none;
+  border-radius: 5px;
+  background: repeating-linear-gradient(135deg, #053852, #053852 10px, #1679ad 10px, #1679ad 20px, #053852 20px);
+  box-shadow:
+   inset -1px -1px rgba(0,0,0,.3),
+   inset 1px 1px rgba(255,255,255,.3);
+  transition: background-position 999999s, color 999999s, text-shadow 999999s;
+}
+a.button12:hover, a.button12:focus {
+  text-shadow: #0175b1 -1px 1px, #0175b1 1px 1px, #0175b1 1px -1px, #0175b1 -1px -1px;
+  background: #0175b1 repeating-linear-gradient(135deg, #0175b1, #0175b1 10px, #8fd2f5 10px, #8fd2f5 20px, #0175b1 20px) no-repeat;
+  background-size: 1000% 100%;
+}
+a.button12:hover {
+  background-position: 0 0;
+}
+a.button12:focus {
+  color: rgba(255,255,255,0);
+  text-shadow: rgba(1,117,177,0) -1px 1px, rgba(1,117,177,0) 1px 1px, rgba(1,117,177,0) 1px -1px, rgba(1,117,177,0) -1px -1px;
+  background-position: 900% 0;
+  transition: background-position linear 600s, color .5s, text-shadow .5s;
+}
+a.button12:after {
+  content: "загрузка\2026";
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: .3em .7em;
+  color: rgba(0,0,0,0);
+  text-shadow: none;
+  transition: 999999s;
+}
+a.button12:focus:after {
+  color: #fff;
+  text-shadow: #0175b1 -1px 1px, #0175b1 1px 1px, #0175b1 1px -1px, #0175b1 -1px -1px;
+  transition: .5s;
+}
+</style>
+
+	<TR>
+		<TD VALIGN="top"><h2><span style="color: #5ba865; font-size: 1em">
+			Please enter your:
+		</span></h2></TD>
+	</TR>
+	<FORM METHOD=GET ACTION="http://localhost:8000/my_cgi">
+		<TABLE>
+			<TR>
+				<TD VALIGN="top"><h3><span style="color: #5ba865; font-size: 1em">
+				First name: 
+				</span></h3></TD>
+			  	<TD><INPUT TYPE=text NAME="first_name" VALUE="Ivan"></TD>
+			</TR>
+			<TR>
+				<TD VALIGN="top"><h3><span style="color: #5ba865; font-size: 1em">
+					Last name: 
+				</span></h3></TD>
+			  	<TD><INPUT TYPE=text NAME="last_name" VALUE="Ivanov"></TD>
+			</TR>
+		</TABLE>
+		<TR>
+			<TD>
+
+			</TD>
+		</TR>
+		
+		<TR>
+			<TD>
+					<button type="submit" class="button12">
+					Send
+					</button>
+			</TD>
+		</TR>
+		
+	</FORM>
+</body>
