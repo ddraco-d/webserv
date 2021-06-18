@@ -170,7 +170,7 @@ std::string Response::getListing()
 	if ((dr = opendir(_path_to_res.c_str())) == NULL)
 		return ("ERROR OPENDIR");
     while ((en = readdir(dr)) != 0)
-		listing += "<li><a href=\"" + _host + ":" + SSTR(_port) + "/" + _res + std::string(en->d_name) +  "\">" + std::string(en->d_name) + "</a></li>\n";
+		listing += "<li><a href=\""  + _res + "/" + std::string(en->d_name) +  "\">" + std::string(en->d_name) + "</a></li>\n";
 	closedir(dr);
 	base = replace(base, "$2", listing);
 	return (base);
