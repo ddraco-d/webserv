@@ -6,11 +6,12 @@
 #    By: ddraco <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/07 23:20:33 by ddraco            #+#    #+#              #
-#    Updated: 2021/01/07 23:21:32 by ddraco           ###   ########.fr        #
+#    Updated: 2021/06/18 18:06:17 by ddraco           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-SRCS			= main.cpp server.cpp AllServers.cpp
+SRCS			= main.cpp server/server.cpp server/AllServers.cpp\
+					response/Response.cpp request/Request.cpp config/Parcer.cpp
 OBJS			= $(SRCS:.cpp=.o)
 
 CXX				= clang++

@@ -1,25 +1,20 @@
 #include "AllServers.h"
 
-void	AllServers::config(std::string fileconf)
+void	AllServers::config(std::string argv)
 {
-	// _config.parse(fileconf.c_str()); запускаем парсинг
+	_config.config_start(argv);
 }
 
 int		AllServers::setup(void)
 {
-	std::vector<std::string> IPs; //= _config.getAll_IPs(); ПОЛУЧАЕМ СПИСОК IP ИЗ КОНФИГА
-	std::vector<unsigned int> ports; //= _config.getAllPorts(); ПОЛУЧАЕМ СПИСОК ПОРТОВ ИЗ КОНФИГА
-	IPs.push_back("127.0.0.1");
-	ports.push_back(8080);
-	IPs.push_back("127.0.0.1");
-	ports.push_back(8081);
-
 	FD_ZERO(&_masterFD);
 	_fdMax = 0;
 
-	for (int i = 0; i < IPs.size(); i++)
+	for (int i = 0; i < _config.getServers().size(); i++)
 	{
-		Server		serv(ports[i], IPs[i]);
+		uint16_t port = _config.getServers()[i].getPort();
+		std::string host_string = _config.getServers()[i].getHostString();
+		Server		serv(port, host_string, _config.getServers()[i]);
 		long		fd;
 
 		if (serv.setup() != -1)
@@ -29,7 +24,7 @@ int		AllServers::setup(void)
 			_servers.insert(std::make_pair(fd, serv));
 			if (fd > _fdMax)
 				_fdMax = fd;
-			std::cout << "Setting up " << IPs[i] << ":" << ports[i] << std::endl;
+			std::cout << "Setting up " << host_string << ":" << port << std::endl;
 		}
 	}
 	if (_fdMax == 0)

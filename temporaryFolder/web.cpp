@@ -11,9 +11,9 @@
 #include <vector>
 #include <fstream>
 #include <unistd.h>
-#include "Request.hpp"
-#include "Parcer.hpp"
-#include "Response.hpp"
+#include "request/Request.hpp"
+#include "Config/Parcer.hpp"
+#include "response/Response.hpp"
 
 #define PORT 8000
 
@@ -22,14 +22,14 @@ class Web_server
 private:
 
 public:
-	Web_server(Server server, char **envp);
+	Web_server(ServerConfig server, char **envp);
 	int 				server_fd;
 	int					new_socket;
 	struct sockaddr_in 	address;
 	int 				addrlen;
 };
 
-Web_server::Web_server(Server server, char **envp)
+Web_server::Web_server(ServerConfig server, char **envp)
 {
 	addrlen = sizeof(address);
 	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
@@ -38,8 +38,8 @@ Web_server::Web_server(Server server, char **envp)
         exit(EXIT_FAILURE);
     }
 	address.sin_family = AF_INET;
-	address.sin_port = htons(server.port);
-	address.sin_addr.s_addr = htonl(server.host);
+	address.sin_port = htons(server.getPort());
+	address.sin_addr.s_addr = htonl(server.getHost());
 	memset(address.sin_zero, '\0', sizeof(address.sin_zero));
 	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address))<0)
     {
@@ -53,7 +53,7 @@ Web_server::Web_server(Server server, char **envp)
     }
 	while(1)
     {
-		printf("\n%d: +++++++ Waiting for new connection ++++++++\n\n", server.port);
+		printf("\n%d: +++++++ Waiting for new connection ++++++++\n\n", server.getPort());
 		if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
         {
             perror("In accept");
@@ -140,8 +140,9 @@ int main(int argc, char **argv, char **envp)
 {
 	if (argc == 2)
 	{
-		Config config(argv[1]);
-		Web_server web(config.servers[0], envp);
+		Config config;
+		config.config_start(argv[1]);
+		Web_server web(config.getServers()[0], envp);
 	}
     return 0;
 }

@@ -3,27 +3,25 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: efumiko <efumiko@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ddraco <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 16:39:39 by efumiko           #+#    #+#             */
-/*   Updated: 2021/06/17 11:23:57 by efumiko          ###   ########.fr       */
+/*   Updated: 2021/06/18 18:29:20 by ddraco           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef RESPONSE_HPP
 #define RESPONSE_HPP
 
-#include "Request.hpp"
-#include "Parcer.hpp"
-#include <vector>
+#include "../request/Request.hpp"
+#include "../Config/Parcer.hpp"
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #include <sys/time.h>
+#include <unistd.h>
 #include <dirent.h>
 #include <fcntl.h>
-#include <fstream>
-#include <sstream>
+
 #define SSTR( x ) static_cast< std::ostringstream & >( \
         ( std::ostringstream() << std::dec << x ) ).str()
 

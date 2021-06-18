@@ -1,18 +1,12 @@
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
-
-#include <string>
-#include <vector>
-#include <map>
-#include <sstream>
-#include <algorithm>
-#include "Parcer.hpp"
+#include "../Config/Parcer.hpp"
 
 class Request
 {
 private:
-	int check_valid(Server *server);
-	int check_valid_path(Server *server);
+	int check_valid(ServerConfig *server);
+	int check_valid_path(ServerConfig *server);
 	int dir_exists(const char* const path);
 
 	std::vector<std::string> split_line(const std::string &buffer);
@@ -21,7 +15,7 @@ private:
 	std::string remove_delim(std::string item, std::string const &set);
 public:
 	Request(){};
-	Request(char *buffer, Server *server);
+	Request(char *buffer, ServerConfig *server);
 	std::string get(void);
 	
 	int		status_code;

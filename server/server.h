@@ -1,6 +1,5 @@
 #ifndef SERVER_H
 # define SERVER_H
-# define PORT 8080
 # include <stdio.h>
 # include <arpa/inet.h>
 # include <sys/socket.h>
@@ -9,19 +8,15 @@
 # include <netinet/in.h>
 # include <string.h>
 # include <iostream>
-# include <fcntl.h>
-# include <vector>
-# include <map>
-#include <sstream>
-#include <fstream>
-#include <set>
-
+#include "../request/Request.hpp"
+#include "../Config/Parcer.hpp"
+#include "../response/Response.hpp"
 # define RECV_SIZE 65536
 
 
 class Server {
 public:
-	Server(unsigned int port, std::string host);
+	Server(unsigned int port, std::string host, ServerConfig serverConfig);
 	// Server(const Server & src);
 	// ~Server(void);
 
@@ -33,12 +28,13 @@ public:
 	void	setAddr(void);
 	long	accept(void);
 	void	process(long socket); //, Config & conf); нужно!
-	// void	processChunk(long socket);
+	// void	processChunk(long socket); ??
 	int		recv(long socket);
 	int	send(long socket);
 	// void	close(int socket);
 	// void	clean(void);
 private:
+	ServerConfig				_serverConfig;
 	std::map<long, std::string>	_requests;
 	std::map<long, std::string>	_response;
 	unsigned int				_port;

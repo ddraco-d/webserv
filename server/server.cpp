@@ -12,8 +12,9 @@ void		Server::setAddr(void)
 	memset(_addr.sin_zero, '\0', sizeof _addr.sin_zero);
 }
 
-Server::Server(unsigned int port, std::string host)
+Server::Server(unsigned int port, std::string host, ServerConfig serverConfig)
 {
+	_serverConfig = serverConfig;
 	this->_port = port;
 	this->_host = host;
 	_serverFd = -1;
@@ -73,10 +74,11 @@ long		Server::accept(void)
 
 void		Server::process(long socket) //, Config & conf)
 {
-	// RequestConfig	requestConf;
-	// Response		response;
-	std::string		recvd = "";
-
+	std::string str = _requests[socket].c_str();
+	char *cstr = new char[str.length() + 1];
+	strcpy(cstr, str.c_str());
+	Request req(cstr, &_serverConfig);
+	Response res(req);
 	// if (_requests[socket].find("Transfer-Encoding: chunked") != std::string::npos &&
 	// 	_requests[socket].find("Transfer-Encoding: chunked") < _requests[socket].find("\r\n\r\n"))
 	// 	this->processChunk(socket);
@@ -88,35 +90,27 @@ void		Server::process(long socket) //, Config & conf)
 
 	if (_requests[socket] != "")
 	{
-		// Request			request(_requests[socket]);
-
-		// if (request.getRet() != 200)
-		// 	request.setMethod("GET");
-
-		// requestConf = conf.getConfigForRequest(this->_listen,  request.getPath(), request.getHeaders().at("Host"), request.getMethod(), request);
-
-		// response.call(request, requestConf);
 		_requests.erase(socket);
 
-		// _response.insert(std::make_pair(socket, response.getResponse()));
+		_response.insert(std::make_pair(socket, res.getResponse()));
 
 
 		//hardcode
-		std::stringstream response, h;
-		response << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
-		std::ifstream html("my.html");
-		h << html.rdbuf();
-		response << h.str().length() << "\n\n" << h.str();
-		_response.insert(std::make_pair(socket, response.str()));
+		// std::stringstream response, h;
+		// response << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
+		// std::ifstream html("my.html");
+		// h << html.rdbuf();
+		// response << h.str().length() << "\n\n" << h.str();
+		// _response.insert(std::make_pair(socket, response.str()));
 		//
 	}
+	delete [] cstr;
 }
 
 int			Server::recv(long socket)
 {
-	char	buf[RECV_SIZE] = {0};
 	int nbytes;
-
+	char	buf[RECV_SIZE] = {0};
 	// handle data from a client
 	if ((nbytes = ::recv(socket, buf, RECV_SIZE - 1, 0)) <= 0) 
 	{
@@ -127,10 +121,7 @@ int			Server::recv(long socket)
 		::close(socket); // bye!
 		return (-1);
 	}
-
 	_requests[socket] += std::string(buf);
-
-	//тут что-то парсинг, возможно проверка на длину, что Content_Length равен реальной??
 	return (1);
 }
 
@@ -145,7 +136,7 @@ int			Server::send(long socket)
 	else
 		std::cout << "\rResponse :                " << std::endl << "["  << _response[socket].substr(0, 1000) << "..." << _response[socket].substr(_response[socket].size() - 10, 15) << "]\n" << std::endl;
 
-	std::string s = _response[socket].substr(sent_data[socket], 65536);
+	std::string s = _response[socket].substr(sent_data[socket], RECV_SIZE);
 	int rVal = ::send(socket, s.c_str(), s.size(), 0);
 
 	if (rVal == -1)
