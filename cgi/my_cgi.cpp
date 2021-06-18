@@ -46,6 +46,6 @@ int main(int argc, char **argv, char **envp)
 	std::string fn, ln;
 	fn = std::string(table[0].begin() + table[0].find("=") + 1, table[0].end());
 	ln = std::string(table[1].begin() + table[1].find("=") + 1, table[1].end());
-	std::cout << "<head>\n<style>\nbody {\ncolor: #ffffff;\nbackground: linear-gradient(#151866, #252B33);\npadding: 100px;\n}\na {\ncolor: #1abc90;\nfont-size: 2rem;\n}\n</style>\n<body>\n" << "Hello, " << fn << " " << ln << " FUC YOU! ;) from server" << "\n</head>";
+	std::cout << "<head>\n<style>\nbody {\ncolor: #ffffff;\nbackground: linear-gradient(#151866, #156b51);\npadding: 250px;\n}\n</style>\n<body>\n" << "Hello, " << fn << " " << ln << " from our webservice!;)" << "\n</head>";
 	return (0);
 }

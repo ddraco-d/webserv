@@ -71,8 +71,8 @@ Web_server::Web_server(Server server, char **envp)
 		Response res(req);
 		std::string response = res.getResponse();
 		
-		send(new_socket , response.c_str(), strlen(response.c_str()), 0);
-		printf("RESPONSE:\n%s", response.c_str());
+		send(new_socket , response.c_str(), response.size(), 0);
+		printf("RESPONSE:%lu %s", response.size(), response.c_str());
 		close(new_socket);
 	}
 

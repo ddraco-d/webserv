@@ -264,7 +264,7 @@ std::string Response::read_file(std::string filepath)
 
 	if (getTypeFile(filepath) == FILE)
 	{
-		std::ifstream f(filepath);
+		std::ifstream f(filepath, std::ifstream::binary);
 		if (f.is_open() == false)
 		{
 			_code = 403;

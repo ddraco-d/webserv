@@ -1,1 +1,1 @@
-i?first_name=Ivan2&last_name=Ivanov2
+?first_name=Ivan&last_name=Ivanov
