@@ -8,7 +8,7 @@ private:
 	int check_valid(ServerConfig *server);
 	int check_valid_path(ServerConfig *server);
 	int dir_exists(const char* const path);
-
+	void  remove_duplicate_slash();
 	std::vector<std::string> split_line(const std::string &buffer);
 	std::vector<std::string> split_first(const std::string &buffer);
 	std::vector<std::string> split_headers(const std::string &buffer);
@@ -16,8 +16,6 @@ private:
 public:
 	Request(){};
 	Request(char *buffer, ServerConfig *server);
-	std::string get(void);
-	
 	int		status_code;
 	bool autoindex;
 	std::string method;

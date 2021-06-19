@@ -9,7 +9,7 @@ public:
 	// ~AllServers(void);
 
 	// AllServers & operator=(const AllServers & src);
-
+	void	config();
 	void	config(std::string file);
 	int		setup(void);
 	void	run(void);
