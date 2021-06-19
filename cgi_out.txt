@@ -7,5 +7,5 @@ padding: 250px;
 }
 </style>
 <body>
-Hello, Ivan2 Ivanov22 from our webservice!;)
+Hello, Ivan Ivanov from our webservice!;)
 </head>

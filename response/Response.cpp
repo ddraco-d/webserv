@@ -68,10 +68,7 @@ Response::Response(Request request)
 
 	// ===путь к папке, в которой будем сохранять файлы для POST===
 	if (getTypeFile(_path_to_res) == DRCT)
-	{
-		_upload_path = _path_to_res;
-		_name_file = "POST.txt";
-	}
+		_upload_path = _path_to_res + "/POST.txt";
 	else
 		_upload_path = "";
 	// параметры сервера
@@ -112,7 +109,7 @@ std::string Response::getResponse()
 	}
 
 	// автоиндекс и путь это директория.
-	if ((getTypeFile(_path_to_res) == DRCT) && _autoindex) {
+	if ((getTypeFile(_path_to_res) == DRCT) && _autoindex && _method == "GET") {
         return (createResponse(getListing()));
     }
 	if (_is_cgi)
@@ -237,8 +234,8 @@ std::string Response::post_method()
 	std::string path;
 	std::string name_header;
 
-	if (_upload_path == "")
-		path = _upload_path + _name_file;
+	if (_upload_path != "")
+		path = _upload_path;
 	else
 		path = _path_to_res;
 	

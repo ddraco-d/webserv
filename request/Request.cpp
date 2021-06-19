@@ -210,6 +210,10 @@ void  Request::remove_duplicate_slash()
 	{
 		req_path.erase(idx, 1);
 	}
+	if (path[path.size()-1] == '/')
+		path.erase(path.size()-1, 1);
+	if (req_path[req_path.size()-1] == '/')
+		req_path.erase(req_path.size()-1, 1);
 }
 
 int Request::check_valid(ServerConfig *server)
