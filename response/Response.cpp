@@ -138,12 +138,12 @@ std::string Response::run_cgi()
 		envp[1] = (char *)("SERVER_PROTOCOL=HTTP/1.1");
 		envp[2] = (char *)("PATH_INFO="+_path_to_res).c_str();
 		envp[3] = (char *)NULL;
-		if (!freopen("./cgi_in.txt", "w", stdout))
+		if (!freopen("./cgi_in.html", "w", stdout))
 			std::cout << "NO OPEN OUT\n";
 		std::cout << _cgi_arg;
-		if (!freopen("./cgi_in.txt", "r", stdin))
+		if (!freopen("./cgi_in.html", "r", stdin))
 			std::cout << "NO OPEN IN\n";
-		if (!freopen("./cgi_out.txt", "w", stdout))
+		if (!freopen("./cgi_out.html", "w", stdout))
 			std::cout << "NO OPEN OUT\n";
 		if (execve(_path_to_res.c_str(), argv, envp) == -1)
 		{
@@ -153,9 +153,9 @@ std::string Response::run_cgi()
 	}
 	wait(&pid);
 	
-	std::ifstream out("./cgi_out.txt");
+	std::ifstream out("./cgi_out.html");
 	std::stringstream answer;
-	answer << out.rdbuf();
+	answer << "<body><h3><span style=\"color: #5ba865; font-size: 1em\">" << out.rdbuf() << "</span></h3></body>";
 	return (createResponse(answer.str()));
 }
 

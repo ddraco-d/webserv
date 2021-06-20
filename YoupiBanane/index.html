@@ -101,11 +101,6 @@ a.button12:focus:after {
 			  	<TD><INPUT TYPE=text NAME="last_name" VALUE="Ivanov"></TD>
 			</TR>
 		</TABLE>
-		<TR>
-			<TD>
-
-			</TD>
-		</TR>
 		
 		<TR>
 			<TD>
@@ -116,4 +111,31 @@ a.button12:focus:after {
 		</TR>
 		
 	</FORM>
+	<form method="GET" action="http://localhost:8000/test" target="my-iframe">
+		<TABLE>
+			<TR>
+				<TD VALIGN="top"><h3><span style="color: #5ba865; font-size: 1em">
+				Enter text to be translated into uppercase
+				</span></h3></TD>
+			  	<TD><INPUT TYPE=text NAME="TEXT" VALUE="abcd"></TD>
+			</TR>		
+		</TABLE>
+		<TR>
+			<TD>
+					<button type="submit" class="button12">
+					Send
+					</button>
+			</TD>
+		</TR>
+		<TR>
+			<TD>
+				<h3><span style="color: #5ba865; font-size: 1em">
+					Resalt:
+					</span></h3></TD>
+		<iframe src="" height="100px" width="300px" name="my-iframe" frameborder="0"></iframe>
+		</TD>
+	</TR>
+	</form>
+	<iframe width="560" height="315" src="https://www.youtube.com/embed/ztTC-ivVbvg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+	
 </body>
