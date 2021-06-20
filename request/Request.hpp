@@ -16,11 +16,6 @@ private:
 public:
 	Request(){};
 	Request(char *buffer, ServerConfig *server);
-<<<<<<< HEAD:request/Request.hpp
-	std::string get(void);
-	
-=======
->>>>>>> ashea:Request.hpp
 	int		status_code;
 	bool autoindex;
 	std::string method;
