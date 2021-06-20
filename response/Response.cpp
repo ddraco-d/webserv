@@ -65,7 +65,7 @@ Response::Response(Request request)
 	
 	// ===контент, который отправляем с помощью POST===
 	_request_content = request.body;
-
+	//std::cout << "BODY: " << _request_content << "|\n";
 	// ===путь к папке, в которой будем сохранять файлы для POST===
 	if (getTypeFile(_path_to_res) == DRCT)
 		_upload_path = _path_to_res + "/POST.txt";

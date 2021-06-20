@@ -1,34 +1,37 @@
 #include "Request.hpp"
 
-std::vector<std::string> Request::split_line(const std::string &buffer)
+std::vector<std::string> Request::split_line(std::string buffer)
 {
-	std::vector<std::string> table;
-	std::stringstream ss;
+	std::vector<std::string> table(0);
+	std::stringstream ss(buffer);
 	std::string item;
-	ss.str(buffer);
+	//while (std::getline(ss, item, '\n'))
+	int idx;
+	int i = 0;
 	while (std::getline(ss, item, '\n'))
-		table.push_back(item);
+	{
+		table.push_back(remove_delim(item, "\t\r\v"));
+		std::cout << remove_delim(item, "\t\r\v") << "|\n";
+	}
 	return (table);
 }
 
-std::vector<std::string> Request::split_first(const std::string &buffer)
+std::vector<std::string> Request::split_first(std::string buffer)
 {
 	std::vector<std::string> table;
-	std::stringstream ss;
+	std::stringstream ss(buffer);
 	std::string item;
-	ss.str(buffer);
 	while (std::getline(ss, item, ' '))
 		table.push_back(item);
 	return (table);
 }
 
-std::vector<std::string> Request::split_headers(const std::string &buffer)
+std::vector<std::string> Request::split_headers(std::string buffer)
 {
 	std::vector<std::string> table;
-	std::stringstream ss;
+	std::stringstream ss(buffer);
 	std::string item;
 	char delim = ':';
-	ss.str(buffer);
 	while (std::getline(ss, item, delim))
 	{
 		std::string::iterator end_pos = std::remove(item.begin(), item.end(), ' ');
@@ -51,10 +54,10 @@ std::string Request::remove_delim(std::string item, std::string const &set)
 
 Request::Request(char *buffer, ServerConfig *server)
 {
-	std::vector<std::string> table;
+	std::vector<std::string> table(0);
 	std::vector<std::string> first_line;
 	std::vector<std::string> other_line;
-	table = split_line(buffer);
+	table = split_line(std::string(buffer));
 	int i = 0;
 	if (!table.empty())
 	{
@@ -66,8 +69,9 @@ Request::Request(char *buffer, ServerConfig *server)
 			req_path = remove_delim(first_line[1], "\t\v\r");
 			version = remove_delim(first_line[2], "\t\v\r");
 		}
-		for (i = 1; i < table.size() && table[i] != ""; ++i)
+		for (i = 1; table[i] != "" && i < table.size(); ++i)
 		{
+			//std::cout << "TAB: " << table[i] << "|\n";;
 			other_line = split_headers(table[i].data());
 			if (other_line.size() == 2)
 				headers[other_line[0]] = other_line[1];
@@ -81,6 +85,7 @@ Request::Request(char *buffer, ServerConfig *server)
 			}
 		}
 	}
+	//std::cout << "\nBODY: " << body << "|\n";
 	host = server->host;
 	host_string = server->host_string;
 	port = server->port;
@@ -90,7 +95,7 @@ Request::Request(char *buffer, ServerConfig *server)
 	is_cgi = false;
 
 	status_code = check_valid(server);
-	std::cout << "\nREQ  PATH: " << req_path << "\n";
+	std::cout << "REQ  PATH: " << req_path << "\n";
 	std::cout << "ITOG PATH: " << path << "\n";
 	if (autoindex == true)
 		std::cout << "autoindex: on\n";
