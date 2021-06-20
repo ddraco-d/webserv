@@ -423,13 +423,23 @@ std::string Response::createResponse(std::string body)
 	_headers["Content-Length"] = SSTR(body.size());
 	_headers["Server"] = "MissionImpossible";
 	_headers["Date"] = getCurrentDate();
-	
+
 	std::map<std::string, std::string>::iterator it;
 	it = _headers.begin();
 	while (it != _headers.end())
 	{
 		_response += it->first + ": " + it->second + "\r\n";
 		++it;
+	}
+	std::ifstream cookie("cookie.txt");
+	if (cookie.is_open())
+	{
+		std::stringstream ss;
+		ss << cookie.rdbuf();
+		if (ss.str().length() > 0)
+			_response += ss.str();
+		cookie.close();
+		remove("cookie.txt");
 	}
 	_response += "\r\n";
 	_response += body;
