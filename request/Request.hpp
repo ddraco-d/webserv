@@ -9,9 +9,9 @@ private:
 	int check_valid_path(ServerConfig *server);
 	int dir_exists(const char* const path);
 	void  remove_duplicate_slash();
-	std::vector<std::string> split_line(const std::string &buffer);
-	std::vector<std::string> split_first(const std::string &buffer);
-	std::vector<std::string> split_headers(const std::string &buffer);
+	std::vector<std::string> split_line(std::string buffer);
+	std::vector<std::string> split_first(std::string buffer);
+	std::vector<std::string> split_headers(std::string buffer);
 	std::string remove_delim(std::string item, std::string const &set);
 public:
 	Request(){};

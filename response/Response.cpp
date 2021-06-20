@@ -65,7 +65,7 @@ Response::Response(Request request)
 	
 	// ===контент, который отправляем с помощью POST===
 	_request_content = request.body;
-
+	//std::cout << "BODY: " << _request_content << "|\n";
 	// ===путь к папке, в которой будем сохранять файлы для POST===
 	if (getTypeFile(_path_to_res) == DRCT)
 		_upload_path = _path_to_res + "/POST.txt";
@@ -138,12 +138,12 @@ std::string Response::run_cgi()
 		envp[1] = (char *)("SERVER_PROTOCOL=HTTP/1.1");
 		envp[2] = (char *)("PATH_INFO="+_path_to_res).c_str();
 		envp[3] = (char *)NULL;
-		if (!freopen("./cgi_in.txt", "w", stdout))
+		if (!freopen("./cgi_in.html", "w", stdout))
 			std::cout << "NO OPEN OUT\n";
 		std::cout << _cgi_arg;
-		if (!freopen("./cgi_in.txt", "r", stdin))
+		if (!freopen("./cgi_in.html", "r", stdin))
 			std::cout << "NO OPEN IN\n";
-		if (!freopen("./cgi_out.txt", "w", stdout))
+		if (!freopen("./cgi_out.html", "w", stdout))
 			std::cout << "NO OPEN OUT\n";
 		if (execve(_path_to_res.c_str(), argv, envp) == -1)
 		{
@@ -153,9 +153,9 @@ std::string Response::run_cgi()
 	}
 	wait(&pid);
 	
-	std::ifstream out("./cgi_out.txt");
+	std::ifstream out("./cgi_out.html");
 	std::stringstream answer;
-	answer << out.rdbuf();
+	answer << "<body><h3><span style=\"color: #5ba865; font-size: 1em\">" << out.rdbuf() << "</span></h3></body>";
 	return (createResponse(answer.str()));
 }
 
@@ -423,13 +423,23 @@ std::string Response::createResponse(std::string body)
 	_headers["Content-Length"] = SSTR(body.size());
 	_headers["Server"] = "MissionImpossible";
 	_headers["Date"] = getCurrentDate();
-	
+
 	std::map<std::string, std::string>::iterator it;
 	it = _headers.begin();
 	while (it != _headers.end())
 	{
 		_response += it->first + ": " + it->second + "\r\n";
 		++it;
+	}
+	std::ifstream cookie("cookie.txt");
+	if (cookie.is_open())
+	{
+		std::stringstream ss;
+		ss << cookie.rdbuf();
+		if (ss.str().length() > 0)
+			_response += ss.str();
+		cookie.close();
+		remove("cookie.txt");
 	}
 	_response += "\r\n";
 	_response += body;

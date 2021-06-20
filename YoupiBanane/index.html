@@ -101,11 +101,6 @@ a.button12:focus:after {
 			  	<TD><INPUT TYPE=text NAME="last_name" VALUE="Ivanov"></TD>
 			</TR>
 		</TABLE>
-		<TR>
-			<TD>
-
-			</TD>
-		</TR>
 		
 		<TR>
 			<TD>
@@ -116,4 +111,44 @@ a.button12:focus:after {
 		</TR>
 		
 	</FORM>
+	<form method="GET" action="http://localhost:8000/test" target="my-iframe">
+		<TABLE>
+			<TR>
+				<TD VALIGN="top"><h3><span style="color: #5ba865; font-size: 1em">
+				Enter text to be translated into uppercase
+				</span></h3></TD>
+			  	<TD><INPUT TYPE=text NAME="TEXT" VALUE="abcd"></TD>
+			</TR>		
+		</TABLE>
+		<TR>
+			<TD>
+					<button type="submit" class="button12">
+					Send
+					</button>
+			</TD>
+		</TR>
+		<TR>
+			<TD>
+				<h3><span style="color: #5ba865; font-size: 1em">
+					Resalt:
+					</span></h3></TD>
+		<iframe src="" height="100px" width="300px" name="my-iframe" frameborder="0"></iframe>
+		</TD>
+	</TR>
+	</form>
+	<iframe width="560" height="315" src="https://www.youtube.com/embed/ztTC-ivVbvg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+	
+
+	<form action="/nop/" method="post" target="my-iframe2">
+		<h3><span style="color: #5ba865; font-size: 1em">
+			POST in /nop/POST.txt:
+		</span></h3>
+		<p><input type="text" name="str"></p>
+		<p><input type="submit" value="POST"></p>
+	</form>
+
+	<h3><span style="color: #5ba865; font-size: 1em">
+		autoindex /nop:
+	</span></h3>
+	<iframe src="/nop" height="500px" width="1000px" name="my-iframe2" frameborder="0"></iframe>
 </body>

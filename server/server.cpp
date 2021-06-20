@@ -111,8 +111,9 @@ int			Server::recv(long socket)
 {
 	int nbytes;
 	char	buf[RECV_SIZE] = {0};
+	std::vector<char> request(RECV_SIZE);
 	// handle data from a client
-	if ((nbytes = ::recv(socket, buf, RECV_SIZE - 1, 0)) <= 0) 
+	if ((nbytes = ::recv(socket, request.data(), request.size(), 0)) <= 0) 
 	{
 		if (nbytes == 0) 
 			std::cout << "\rConnection closed by client, socket number" << socket << std::endl;
@@ -121,7 +122,7 @@ int			Server::recv(long socket)
 		::close(socket); // bye!
 		return (-1);
 	}
-	_requests[socket] += std::string(buf);
+	_requests[socket] += request.data();
 	return (1);
 }
 
