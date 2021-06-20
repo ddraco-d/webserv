@@ -108,6 +108,7 @@ class Config
 {
 	public:
 		Config(){};
+		void config_start();
 		void config_start(const std::string &path);
 		std::vector<ServerConfig> getServers();
 		std::vector<ServerConfig> servers;

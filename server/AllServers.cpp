@@ -1,5 +1,10 @@
 #include "AllServers.h"
 
+void	AllServers::config()
+{
+	_config.config_start();
+}
+
 void	AllServers::config(std::string argv)
 {
 	_config.config_start(argv);

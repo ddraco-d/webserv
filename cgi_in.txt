@@ -1,1 +1,1 @@
-?first_name=Ivan&last_name=Ivanovdsad
+?first_name=Ivan&last_name=Ivanov

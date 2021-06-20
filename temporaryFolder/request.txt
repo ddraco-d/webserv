@@ -1,0 +1,9 @@
+DELETE /directory/POST.txt HTTP/1.1
+Host: localhost:8000
+User-Agent: Go-http-client/1.1
+Accept-Encoding: gzip
+
+
+deded
+deded
+swswsw

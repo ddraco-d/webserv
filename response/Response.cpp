@@ -67,8 +67,10 @@ Response::Response(Request request)
 	_request_content = request.body;
 
 	// ===путь к папке, в которой будем сохранять файлы для POST===
-	_upload_path = request.path_post;
-	
+	if (getTypeFile(_path_to_res) == DRCT)
+		_upload_path = _path_to_res + "/POST.txt";
+	else
+		_upload_path = "";
 	// параметры сервера
 	_host = request.host_string;
 	_port = request.port;
@@ -107,7 +109,7 @@ std::string Response::getResponse()
 	}
 
 	// автоиндекс и путь это директория.
-	if ((getTypeFile(_path_to_res) == DRCT) && _autoindex) {
+	if ((getTypeFile(_path_to_res) == DRCT) && _autoindex && _method == "GET") {
         return (createResponse(getListing()));
     }
 	if (_is_cgi)
@@ -134,7 +136,7 @@ std::string Response::run_cgi()
 		argv[1] = (char *)NULL;
 		envp[0] = (char *)("REQUEST_METHOD="+_method).c_str();
 		envp[1] = (char *)("SERVER_PROTOCOL=HTTP/1.1");
-		envp[2] = (char *)("PATH_INFO=./cgi_in.txt");
+		envp[2] = (char *)("PATH_INFO="+_path_to_res).c_str();
 		envp[3] = (char *)NULL;
 		if (!freopen("./cgi_in.txt", "w", stdout))
 			std::cout << "NO OPEN OUT\n";
@@ -232,8 +234,8 @@ std::string Response::post_method()
 	std::string path;
 	std::string name_header;
 
-	if (_upload_path.size() > 0)
-		path = _upload_path + _name_file;
+	if (_upload_path != "")
+		path = _upload_path;
 	else
 		path = _path_to_res;
 	
