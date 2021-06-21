@@ -9,6 +9,7 @@
 #include <sstream>
 #include <vector>
 #include <fstream>
+#include <algorithm>
 
 
 std::vector<std::string> split_arg(const std::string &buffer)

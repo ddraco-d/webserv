@@ -464,3 +464,7 @@ std::string Response::getErrorPage()
 	errorPage = replace(errorPage, "$2", getReasonPhrase());
 	return (errorPage);
 }
+
+std::string Response::getMethod() const {
+	return (_method);
+}

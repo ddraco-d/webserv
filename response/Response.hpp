@@ -6,7 +6,7 @@
 /*   By: efumiko <efumiko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 16:39:39 by efumiko           #+#    #+#             */
-/*   Updated: 2021/06/21 21:38:57 by efumiko          ###   ########.fr       */
+/*   Updated: 2021/06/21 22:13:53 by efumiko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,7 @@ public:
 	std::string getReasonPhrase();
 	std::string getListing();
 	std::string read_file(std::string filepath);
+	std::string getMethod() const;
 	void initReasonPhrases();
 	void initMIME();
 

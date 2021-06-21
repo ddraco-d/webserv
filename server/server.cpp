@@ -91,7 +91,8 @@ void		Server::process(long socket)
 		if (_requests[socket] != "")
 		{
 			response = res.getResponse();
-			_cache[_requests[socket]] = response;
+			if (res.getMethod() == "GET")
+				_cache[_requests[socket]] = response;
 			_response.insert(std::make_pair(socket, response));
 			_requests.erase(socket);
 		}
