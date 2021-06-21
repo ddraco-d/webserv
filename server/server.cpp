@@ -97,6 +97,7 @@ void		Server::process(long socket)
 	}
 	else
 	{
+		check_modify(_cache[_requests[socket]]);
 		_response.insert(std::make_pair(socket, _cache[_requests[socket]]));
 		_requests.erase(socket);
 	}

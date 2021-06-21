@@ -3,14 +3,36 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddraco <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: efumiko <efumiko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/21 01:05:08 by efumiko           #+#    #+#             */
-/*   Updated: 2021/06/21 01:15:31 by ddraco           ###   ########.fr       */
+/*   Updated: 2021/06/21 17:57:40 by efumiko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
+
+size_t	ft_strlcpy(char *dst, const char *src, size_t size)
+{
+	size_t tmpsize;
+	size_t i;
+
+	if (!dst || !src)
+		return (0);
+	tmpsize = size;
+	i = 0;
+	while (src[i] != '\0' && tmpsize > 0)
+	{
+		dst[i] = src[i];
+		tmpsize--;
+		i++;
+	}
+	if (i < size)
+		dst[i] = '\0';
+	else if (size > 0)
+		dst[i - 1] = '\0';
+	return (strlen(src));
+}
 
 static const char	*skip_delimeters(const char *s, char c)
 {
@@ -79,7 +101,7 @@ char				**ft_split(char const *s, char c)
 		if (!(to_return[index] = (char*)malloc(sizeof(char) *
 						(cur_length + 1))))
 			return (free_space(to_return));
-		strlcpy(to_return[index], s, cur_length + 1);
+		ft_strlcpy(to_return[index], s, cur_length + 1);
 		s += cur_length;
 		index++;
 	}

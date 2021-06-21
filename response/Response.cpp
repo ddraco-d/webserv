@@ -457,8 +457,7 @@ std::string Response::getErrorPage()
 {
 	std::string errorPage;
 
-	// если в конфиге указаны error_page
-	// error_pages - это map<int, string> определенному коду ошибки соответствует своя error_page страница
+
 	//if (_serv_conf.error_pages.count(_code) > 0)
 	//	return (read_file(_serv_conf.error_pages[_code]));
 	errorPage = read_file("./html/www/error.html");
