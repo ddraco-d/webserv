@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: ddraco <marvin@42.fr>                      +#+  +:+       +#+         #
+#    By: efumiko <efumiko@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/07 23:20:33 by ddraco            #+#    #+#              #
-#    Updated: 2021/06/21 01:19:23 by ddraco           ###   ########.fr        #
+#    Updated: 2021/06/21 17:56:25 by efumiko          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,7 @@ OBJS			= $(SRCS:.cpp=.o)
 
 CXX				= clang++
 RM				= rm -f
-CXXFLAGS		= -Wall -Wextra -Werror -std=c++98
+#CXXFLAGS		= -Wall -Wextra -Werror -std=c++98
 
 NAME			= webserv
 
