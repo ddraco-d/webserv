@@ -8,7 +8,7 @@ std::vector<std::string> Request::split_line(std::string buffer)
 	while (std::getline(ss, item, '\n'))
 	{
 		table.push_back(remove_delim(item, "\t\r\v"));
-		std::cout << remove_delim(item, "\t\r\v") << "|\n";
+		// std::cout << remove_delim(item, "\t\r\v") << "|\n";
 	}
 	return (table);
 }
@@ -93,12 +93,12 @@ Request::Request(char *buffer, ServerConfig *server)
 	is_cgi = false;
 
 	status_code = check_valid(server);
-	std::cout << "REQ  PATH: " << req_path << "\n";
-	std::cout << "ITOG PATH: " << path << "\n";
-	if (autoindex == true)
-		std::cout << "autoindex: on\n";
-	else
-		std::cout << "autoindex: off\n";
+	// std::cout << "REQ  PATH: " << req_path << "\n";
+	// std::cout << "ITOG PATH: " << path << "\n";
+	// if (autoindex == true)
+	// 	std::cout << "autoindex: on\n";
+	// else
+	// 	std::cout << "autoindex: off\n";
 }
 
 int Request::dir_exists(const char* const path)
@@ -202,7 +202,7 @@ int Request::check_valid_path(ServerConfig *server)
 				path = server->locations[url].more_info["root"] + "/" + remove_delim(server->locations[url].more_info["cgi_bin"], " \t\v\r");
 			if (dir_exists(path.c_str()) <= 0)
 				return (404);
-			std::cout << "ARG_CGI:" << cgi_arg << "|\n";
+			// std::cout << "ARG_CGI:" << cgi_arg << "|\n";
 		}
 	}
 	remove_duplicate_slash();

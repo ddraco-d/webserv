@@ -71,39 +71,36 @@ long		Server::accept(void)
 	return (new_socket);
 }
 
-void		Server::process(long socket) //, Config & conf)
+void		Server::process(long socket)
 {
-	std::string str = _requests[socket].c_str();
-	char *cstr = new char[str.length() + 1];
-	strcpy(cstr, str.c_str());
-	Request req(cstr, &_serverConfig);
-	Response res(req);
-	// if (_requests[socket].find("Transfer-Encoding: chunked") != std::string::npos &&
-	// 	_requests[socket].find("Transfer-Encoding: chunked") < _requests[socket].find("\r\n\r\n"))
-	// 	this->processChunk(socket);
-
+	std::cout << "\033[33m" << _cache.count(_requests[socket]) << "\033[0m" << std::endl;
 	if (_requests[socket].size() < 1000)
-		std::cout << "\nRequest :" << std::endl << "[" << _requests[socket]  << "]" << std::endl;
-	else
-		std::cout << "\nRequest :" << std::endl << "["  << _requests[socket].substr(0, 1000) << "..." << _requests[socket].substr(_requests[socket].size() - 10, 15) << "]" << std::endl;
-
-	if (_requests[socket] != "")
+			std::cout << "\nRequest :" << std::endl << "[" << _requests[socket]  << "]" << std::endl;
+		else
+			std::cout << "\nRequest :" << std::endl << "["  << _requests[socket].substr(0, 1000) << "..." << _requests[socket].substr(_requests[socket].size() - 10, 15) << "]" << std::endl;
+	if (_cache.count(_requests[socket]) == 0)
 	{
-		_requests.erase(socket);
-
-		_response.insert(std::make_pair(socket, res.getResponse()));
-
-
-		//hardcode
-		// std::stringstream response, h;
-		// response << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
-		// std::ifstream html("my.html");
-		// h << html.rdbuf();
-		// response << h.str().length() << "\n\n" << h.str();
-		// _response.insert(std::make_pair(socket, response.str()));
-		//
+		std::string response;
+		std::string str = _requests[socket].c_str();
+		char *cstr = new char[str.length() + 1];
+		strcpy(cstr, str.c_str());
+		Request req(cstr, &_serverConfig);
+		Response res(req);
+		if (_requests[socket] != "")
+		{
+			response = res.getResponse();
+			_cache[_requests[socket]] = response;
+			_response.insert(std::make_pair(socket, response));
+			_requests.erase(socket);
+			// std::cout << "\033[33m" << _cache[_requests[socket]] << "\033[0m" << std::endl;
+		}
+		delete [] cstr;
 	}
-	delete [] cstr;
+	else
+	{
+		_response.insert(std::make_pair(socket, _cache[_requests[socket]]));
+		_requests.erase(socket);
+	}
 }
 
 int			Server::recv(long socket)

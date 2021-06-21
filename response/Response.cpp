@@ -11,47 +11,9 @@
 /* ************************************************************************** */
 
 #include "Response.hpp"
-/*
-Response::Response(void)
-{
-	initReasonPhrases();
-	initMIME();
 
-	// =====for autoindex=====
-	_host = "localhost";
-	_port = 8000;
-    _code = 200;
-	
-	// =====GET=====
-    // _method = "GET";
-    // _path_to_res = "./test/www/index.html";
-
-	// =====autoindex=====
-	//_autoindex = true;
-    // _res = "www/";
-	// _path_to_res = "./test/www/";
-
-	// =====POST create=====
-	_method = "POST";
-    _path_to_res = "./test/www/new_file";
-	_upload_path = "./test/www/tmp/";
-	_name_file = "new_file.html";
-	_request_content = "Hello world123123";
-	_res = "/www/tmp/new_file";
-
-	// =====DELETE=====
-	// _method = "DELETE";
-	// _path_to_res = "./test/www/tmp/new_file";
-	// _res = "/www/tmp/new_file";
-}
-*/
-//Response::Response(const Request &request_conf, const Config &serv_conf)
 Response::Response(Request request)
 {
-	// ====не факт, что эти штуки нужны)) возможно, только как параметры для cgi===
-	//_req_conf = request_conf;  
-	//_serv_conf = serv_conf; // используется в getErrorPage()
-
 	// ===первая строка Request===
 	_code = request.status_code;
 	_res = request.req_path;
