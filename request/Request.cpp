@@ -160,12 +160,17 @@ int Request::check_valid_path(ServerConfig *server)
 	else
 	{
 		_allow_methods = server->locations[url].more_info["allow_methods"];
+		std::string  ending = std::string(path.begin() + url.size(), path.end());
+		if (server->locations[url].more_info.count("return") == 1)
+		{
+			path = server->locations[url].more_info["return"] + ending;
+			return (301);
+		}
 		if (path == url || path == url + "/")
 		{
 			if (server->locations[url].more_info.count("index") == 1)
 				path = path + "/" + server->locations[url].more_info["index"];
 		}
-		std::string  ending = std::string(path.begin() + url.size(), path.end());
 		if (server->locations[url].more_info.count("root") == 1)
 				path = server->locations[url].more_info["root"] + ending;
 		if (server->locations[url].more_info.count("cgi_bin") == 0)
