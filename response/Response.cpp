@@ -79,7 +79,7 @@ Response::Response(Request request)
 	_is_cgi = request.is_cgi;
 	_cgi_arg = request.cgi_arg;
 	if ((_methods = request.getAllowMethods()) == "")
-		_methods == "GET";
+		_methods = "GET";
 	initReasonPhrases();
 	initMIME();
 }
