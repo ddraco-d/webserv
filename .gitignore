@@ -3,3 +3,4 @@ a.out.dSYM
 .vscode
 index.html
 webserv
+.DS_Store

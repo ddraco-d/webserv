@@ -5,9 +5,6 @@ std::vector<std::string> Request::split_line(std::string buffer)
 	std::vector<std::string> table(0);
 	std::stringstream ss(buffer);
 	std::string item;
-	//while (std::getline(ss, item, '\n'))
-	int idx;
-	int i = 0;
 	while (std::getline(ss, item, '\n'))
 	{
 		table.push_back(remove_delim(item, "\t\r\v"));
@@ -44,7 +41,7 @@ std::vector<std::string> Request::split_headers(std::string buffer)
 
 std::string Request::remove_delim(std::string item, std::string const &set)
 {
-	for (int i = 0; i < set.size(); ++i)
+	for (unsigned long i = 0; i < set.size(); ++i)
 	{
 		std::string::iterator end_pos = std::remove(item.begin(), item.end(), set[i]);
 		item.erase(end_pos, item.end());
@@ -57,8 +54,9 @@ Request::Request(char *buffer, ServerConfig *server)
 	std::vector<std::string> table(0);
 	std::vector<std::string> first_line;
 	std::vector<std::string> other_line;
+	_allow_methods = "";
 	table = split_line(std::string(buffer));
-	int i = 0;
+	unsigned long i = 0;
 	if (!table.empty())
 	{
 		first_line = split_first(table[i].data());
@@ -135,6 +133,7 @@ int Request::check_valid_path(ServerConfig *server)
 	if (url == "/")
 	{
 		//остаемся в сервере
+		_allow_methods = server->more_info["allow_methods"];
 		if (path == url || path == url + "/") 
 		{
 			if (server->more_info.count("index") == 1)
@@ -149,17 +148,18 @@ int Request::check_valid_path(ServerConfig *server)
 				return (405);
 		if (server->more_info.count("client_body_buffer_size") == 1)
 		{
-			if (std::stoi(server->more_info["client_body_buffer_size"]) < body.size())
+			if (std::stoi(server->more_info["client_body_buffer_size"]) < (int)body.size())
 				return (413);
 		}
 		else
 		{
 			if (12656974 < body.size())
 				return (413);
-		}		
+		}
 	}
 	else
 	{
+		_allow_methods = server->locations[url].more_info["allow_methods"];
 		if (path == url || path == url + "/")
 		{
 			if (server->locations[url].more_info.count("index") == 1)
@@ -176,7 +176,7 @@ int Request::check_valid_path(ServerConfig *server)
 				return (405);
 		if (server->locations[url].more_info.count("client_body_buffer_size") == 1)
 		{
-			if (std::stoi(server->locations[url].more_info["client_body_buffer_size"]) < body.size())
+			if (std::stoi(server->locations[url].more_info["client_body_buffer_size"]) < (int)body.size())
 				return (413);
 		}
 		else
@@ -206,7 +206,7 @@ int Request::check_valid_path(ServerConfig *server)
 
 void  Request::remove_duplicate_slash()
 {
-	int idx;
+	unsigned long idx;
 	while((idx = path.find("//")) != NO_FIND)
 	{
 		path.erase(idx, 1);
@@ -230,4 +230,10 @@ int Request::check_valid(ServerConfig *server)
 	if (!(path[0] == '/'))
 		return (505);
 	return (check_valid_path(server));
+}
+
+
+std::string Request::getAllowMethods() 
+{
+	return _allow_methods;
 }

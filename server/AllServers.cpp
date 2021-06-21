@@ -15,7 +15,7 @@ int		AllServers::setup(void)
 	FD_ZERO(&_masterFD);
 	_fdMax = 0;
 
-	for (int i = 0; i < _config.getServers().size(); i++)
+	for (unsigned long i = 0; i < _config.getServers().size(); i++)
 	{
 		uint16_t port = _config.getServers()[i].getPort();
 		std::string host_string = _config.getServers()[i].getHostString();

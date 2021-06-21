@@ -6,17 +6,17 @@
 #    By: ddraco <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/07 23:20:33 by ddraco            #+#    #+#              #
-#    Updated: 2021/06/18 18:06:17 by ddraco           ###   ########.fr        #
+#    Updated: 2021/06/21 01:19:23 by ddraco           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 SRCS			= main.cpp server/server.cpp server/AllServers.cpp\
-					response/Response.cpp request/Request.cpp config/Parcer.cpp
+					response/Response.cpp request/Request.cpp Config/Parcer.cpp response/utils.cpp
 OBJS			= $(SRCS:.cpp=.o)
 
 CXX				= clang++
 RM				= rm -f
-#CXXFLAGS		= -Wall -Wextra -Werror
+CXXFLAGS		= -Wall -Wextra -Werror -std=c++98
 
 NAME			= webserv
 
