@@ -152,10 +152,15 @@ std::string Response::run_cgi()
 		exit(0);
 	}
 	wait(&pid);
-	
-	std::ifstream out("./cgi_out.html");
 	std::stringstream answer;
-	answer << "<body><h3><span style=\"color: #5ba865; font-size: 1em\">" << out.rdbuf() << "</span></h3></body>";
+	std::ifstream out("./cgi_out.html");
+	if (out.is_open())
+	{
+		answer << "<body><h3><span style=\"color: #5ba865; font-size: 1em\">" << out.rdbuf() << "</span></h3></body>";
+		out.close();
+		remove("./cgi_out.html");
+		remove("./cgi_in.html");
+	}
 	return (createResponse(answer.str()));
 }
 
@@ -167,7 +172,7 @@ std::string Response::getListing()
 	struct dirent *en;
 	DIR *dr;
 
-	base = read_file("./test/www/listing.html");
+	base = read_file("./html/www/listing.html");
 	base = replace(base, "$1", _res);
 	if ((dr = opendir(_path_to_res.c_str())) == NULL)
 		return ("ERROR OPENDIR");
@@ -475,7 +480,7 @@ std::string Response::getErrorPage()
 	// error_pages - это map<int, string> определенному коду ошибки соответствует своя error_page страница
 	//if (_serv_conf.error_pages.count(_code) > 0)
 	//	return (read_file(_serv_conf.error_pages[_code]));
-	errorPage = read_file("./test/www/error.html");
+	errorPage = read_file("./html/www/error.html");
 	errorPage = replace(errorPage, "$1", SSTR(_code));
 	errorPage = replace(errorPage, "$2", getReasonPhrase());
 	return (errorPage);
