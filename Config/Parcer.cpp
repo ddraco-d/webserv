@@ -47,6 +47,9 @@ void Config::check_valid_server(void)
 		}
 		if (servers[i].more_info.count("cgi_bin") == 1)
 			throw "cgi_bin only in location";
+		if (servers[i].more_info.count("error_page") == 1)
+			if (dir_exists(servers[i].more_info["error_page"].c_str()) != 2)
+				throw "bad error_page in server";
 		check_valid_location(&(servers[i]));
 	}
 }

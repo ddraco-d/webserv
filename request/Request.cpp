@@ -136,7 +136,7 @@ int Request::check_valid_path(ServerConfig *server)
 		_allow_methods = server->more_info["allow_methods"];
 		if (path == url || path == url + "/") 
 		{
-			if (server->more_info.count("index") == 1)
+			if (server->more_info.count("index") == 1 && method == "GET")
 				path = path + "/" + server->more_info["index"];
 		}
 		if (server->more_info.count("root") == 1)
@@ -168,7 +168,7 @@ int Request::check_valid_path(ServerConfig *server)
 		}
 		if (path == url || path == url + "/")
 		{
-			if (server->locations[url].more_info.count("index") == 1)
+			if (server->locations[url].more_info.count("index") == 1 && method == "GET")
 				path = path + "/" + server->locations[url].more_info["index"];
 		}
 		if (server->locations[url].more_info.count("root") == 1)
