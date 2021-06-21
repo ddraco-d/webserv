@@ -25,6 +25,8 @@ public:
 	void	process(long socket);
 	int		recv(long socket);
 	int	send(long socket);
+
+	bool is_modify(long socket);
 	// void	close(int socket);
 	// void	clean(void);
 private:

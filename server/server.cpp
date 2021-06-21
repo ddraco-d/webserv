@@ -78,6 +78,8 @@ void		Server::process(long socket)
 			std::cout << "\nRequest :" << std::endl << "[" << _requests[socket]  << "]" << std::endl;
 		else
 			std::cout << "\nRequest :" << std::endl << "["  << _requests[socket].substr(0, 1000) << "..." << _requests[socket].substr(_requests[socket].size() - 10, 15) << "]" << std::endl;
+	if ((_cache.count(_requests[socket]) != 0) && is_modify(socket))
+		_cache.erase(_requests[socket]);
 	if (_cache.count(_requests[socket]) == 0)
 	{
 		std::string response;
@@ -97,10 +99,48 @@ void		Server::process(long socket)
 	}
 	else
 	{
-		check_modify(_cache[_requests[socket]]);
 		_response.insert(std::make_pair(socket, _cache[_requests[socket]]));
 		_requests.erase(socket);
 	}
+}
+
+// парсит запрос и достает оттуда дату модификации файла по пути к файлу.
+// находит строчку с датой модификации файла в кэше
+// сравнивает их
+// возвращает результат.
+bool Server::is_modify(long socket)
+{
+	// парсим запрос
+	std::string str = _requests[socket].c_str();
+	char *cstr = new char[str.length() + 1];
+	strcpy(cstr, str.c_str());
+	Request req(cstr, &_serverConfig);
+
+	// получаем кэшированный ответ
+	std::string find_resp = _cache[_requests[socket]];
+	
+	// находим в нем дату модификации
+	int i = find_resp.find("Last-Modified:");
+	
+	if (i != -1)
+	{
+		std::string cache_modif_date = find_resp.substr(i + 15, find_resp.find("\r\n", i) - (i + 15));
+
+		// получаем последнюю дату модификации
+		Response resp_for_date(req);
+		std::string last_modif = resp_for_date.getLastModif();
+		// std::cout << "\n\n==============================\n\n" 
+		// 			<< "last_modif:" << last_modif << "\n"
+		// 			<< "cache_modif_date:" << cache_modif_date
+		// 			<< "\n\n============================\n\n";
+		delete [] cstr;
+		if (cache_modif_date == last_modif)
+			return false;
+		else
+			return true;
+	}
+	delete [] cstr;
+	return false;
 }
 
 int			Server::recv(long socket)

@@ -93,6 +93,10 @@ Request::Request(char *buffer, ServerConfig *server)
 	is_cgi = false;
 
 	status_code = check_valid(server);
+	if (server->more_info.count("error_page") == 1)
+		error_path = server->more_info["error_page"];
+	else
+		error_path = "./html/www/error.html";
 	// std::cout << "REQ  PATH: " << req_path << "\n";
 	// std::cout << "ITOG PATH: " << path << "\n";
 	// if (autoindex == true)

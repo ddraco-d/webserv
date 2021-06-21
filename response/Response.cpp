@@ -38,6 +38,8 @@ Response::Response(Request request)
 	_port = request.port;
 	_autoindex = request.autoindex;
 
+	_error_path = request.error_path;
+
 	_is_cgi = request.is_cgi;
 	_cgi_arg = request.cgi_arg;
 	if ((_methods = request.getAllowMethods()) == "")
@@ -457,10 +459,7 @@ std::string Response::getErrorPage()
 {
 	std::string errorPage;
 
-
-	//if (_serv_conf.error_pages.count(_code) > 0)
-	//	return (read_file(_serv_conf.error_pages[_code]));
-	errorPage = read_file("./html/www/error.html");
+	errorPage = read_file(_error_path);
 	errorPage = replace(errorPage, "$1", SSTR(_code));
 	errorPage = replace(errorPage, "$2", getReasonPhrase());
 	return (errorPage);

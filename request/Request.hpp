@@ -14,7 +14,7 @@ private:
 	std::vector<std::string> split_headers(std::string buffer);
 	std::string remove_delim(std::string item, std::string const &set);
 
-	std::string _allow_methods;	
+	std::string _allow_methods;
 public:
 	std::string getAllowMethods();
 	Request(){};
@@ -37,6 +37,7 @@ public:
 	std::string host_string;
 
 	std::string path_post;
+	std::string error_path;
 };
 
 #endif
