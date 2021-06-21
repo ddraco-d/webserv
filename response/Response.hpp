@@ -6,7 +6,7 @@
 /*   By: ddraco <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 16:39:39 by efumiko           #+#    #+#             */
-/*   Updated: 2021/06/18 18:29:20 by ddraco           ###   ########.fr       */
+/*   Updated: 2021/06/21 01:16:49 by ddraco           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <fcntl.h>
+#include "string.h"
+#include "stdlib.h"
 
 #define SSTR( x ) static_cast< std::ostringstream & >( \
         ( std::ostringstream() << std::dec << x ) ).str()
@@ -29,7 +31,8 @@
 #define FILE 1
 #define NON_EXIST -1
 
-
+void		ft_free_array(char ***ar);
+char		**ft_split(char const *s, char c);
 class Response
 {
 private:
@@ -57,6 +60,7 @@ private:
 
 	bool		_is_cgi;
 	std::string	_cgi_arg;
+	std::string _methods;
 public:
 //	Response();
 //	Response(const Request &request_conf, const Config &serv_conf);

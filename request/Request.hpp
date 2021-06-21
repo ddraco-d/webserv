@@ -13,7 +13,10 @@ private:
 	std::vector<std::string> split_first(std::string buffer);
 	std::vector<std::string> split_headers(std::string buffer);
 	std::string remove_delim(std::string item, std::string const &set);
+
+	std::string _allow_methods;	
 public:
+	std::string getAllowMethods();
 	Request(){};
 	Request(char *buffer, ServerConfig *server);
 	int		status_code;

@@ -22,7 +22,6 @@ private:
 	fd_set						_masterFD;
 	fd_set 						_read_fds;  // temp file descriptor list for select()
 	fd_set 						_write_fds; // temp file descriptor list for select()
-	unsigned int				_fd_size;
 	long						_fdMax;
 	int							select();
 	void						send();

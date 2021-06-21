@@ -6,7 +6,7 @@
 /*   By: ddraco <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/11 17:13:02 by ddraco            #+#    #+#             */
-/*   Updated: 2021/06/20 14:31:48 by ddraco           ###   ########.fr       */
+/*   Updated: 2021/06/21 00:21:45 by ddraco           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@
 #include "server/AllServers.h"
 
 
-int		main(int ac, char **av, char **envp)
+int		main(int ac, char **av)
 {
 	AllServers	servers;
 	try {

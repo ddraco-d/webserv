@@ -110,7 +110,6 @@ void		Server::process(long socket) //, Config & conf)
 int			Server::recv(long socket)
 {
 	int nbytes;
-	char	buf[RECV_SIZE] = {0};
 	std::vector<char> request(RECV_SIZE);
 	// handle data from a client
 	if ((nbytes = ::recv(socket, request.data(), request.size(), 0)) <= 0) 

@@ -28,7 +28,7 @@ std::vector<ServerConfig> Config::getServers()
 
 void Config::check_valid_server(void)
 {
-	for (int i = 0; i < servers.size(); ++i)
+	for (unsigned int i = 0; i < servers.size(); ++i)
 	{
 		std::string path_ser;
 		if (servers[i].more_info.count("root") == 0)
@@ -148,18 +148,18 @@ void Config::pars_server(std::string const &str)
 
 bool Config::check_brace(std::string const &str)
 {
-	int idx_begin = str.find("{");
-	int idx_end = str.rfind("}");
+	unsigned long idx_begin = str.find("{");
+	unsigned long idx_end = str.rfind("}");
 	if (idx_begin == NO_FIND || idx_end == NO_FIND)
 		throw "bad brace";
-	for (int i = 0; i < idx_begin; ++i)
+	for (unsigned long i = 0; i < idx_begin; ++i)
 		if (!find_in_set(str[i], " \n\t\v\r"))
 			throw "extra characters between brace";
-	for (int i = idx_end + 1; i < str.length(); ++i)
+	for (unsigned long i = idx_end + 1; i < str.length(); ++i)
 		if (!find_in_set(str[i], " \n\t\v\r"))
 			throw "extra characters between brace";
 	int count_brace = 0;
-	for (int i = idx_begin + 1; i < idx_end; ++i)
+	for (unsigned long i = idx_begin + 1; i < idx_end; ++i)
 	{
 		if (count_brace < 0)
 			throw "bad brace";
@@ -213,7 +213,7 @@ void Config::server_init(std::string const &str, ServerConfig *server)
 
 std::string Config::remove_delim(std::string item, std::string const &set)
 {
-	for (int i = 0; i < set.size(); ++i)
+	for (unsigned long i = 0; i < set.size(); ++i)
 	{
 		std::string::iterator end_pos = std::remove(item.begin(), item.end(), set[i]);
 		item.erase(end_pos, item.end());
@@ -238,9 +238,9 @@ std::vector<std::string> Config::split_line(const std::string &buffer)
 std::map<std::string, std::string> Config::more_info_init(std::vector<std::string> info)
 {
 	std::map<std::string, std::string> more_info;
-	for (int i = 0; i < info.size(); ++i)
+	for (unsigned long i = 0; i < info.size(); ++i)
 	{
-		int g = info[i].find(" ");
+		unsigned long g = info[i].find(" ");
 		if (g != NO_FIND)
 			more_info[std::string(info[i].begin(), info[i].begin()+g)] = std::string(info[i].begin()+g+1, info[i].end());
 		else
@@ -258,8 +258,8 @@ void Config::location_init(std::string const &str, Location *location)
 void Config::pars_location(std::string const &str, ServerConfig *server, std::string const &ln)
 {
 	int i = 0;
-	int idx = 0;
-	int idx2 = 0;
+	unsigned long idx = 0;
+	unsigned long idx2 = 0;
 	Location loc;
 	loc.name = remove_delim(std::string(str.begin(), str.begin()+str.find("{")), " \n\t\v\r");
 	if	(loc.name[0] == '/')

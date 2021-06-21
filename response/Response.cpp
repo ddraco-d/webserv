@@ -6,7 +6,7 @@
 /*   By: efumiko <efumiko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/15 18:42:33 by efumiko           #+#    #+#             */
-/*   Updated: 2021/06/17 12:03:55 by efumiko          ###   ########.fr       */
+/*   Updated: 2021/06/21 01:110:00 by efumiko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,9 +78,10 @@ Response::Response(Request request)
 
 	_is_cgi = request.is_cgi;
 	_cgi_arg = request.cgi_arg;
-
-	 initReasonPhrases();
-	 initMIME();
+	if ((_methods = request.getAllowMethods()) == "")
+		_methods == "GET";
+	initReasonPhrases();
+	initMIME();
 }
 
 
@@ -90,14 +91,16 @@ std::string Response::getResponse()
 		return (createResponse(getErrorPage()));
 	if (_code == 405)
 	{
-		//std::vector<std::string> methods = _req_conf.getMethods();
+		char **methods_c = ft_split(_methods.c_str(), ' ');
 		std::vector<std::string> methods;
-        methods.push_back("GET");
-        methods.push_back("POST");
-        methods.push_back("DELETE");
-         
-        std::string methods_str;
-
+		std::string methods_str;
+		int i = 0;
+		while (methods_c[i] != NULL)
+		{
+			methods.push_back(std::string(methods_c[i]));
+			++i;
+		}
+		ft_free_array(&methods_c);
 		for (size_t i = 0; i < methods.size(); ++i)
 		{
 			methods_str += methods[i];
@@ -190,8 +193,6 @@ std::string Response::replace(std::string source, std::string to_replace, std::s
 
 std::string Response::delete_method()
 {
-    int type;
-
 	if ((getTypeFile(_path_to_res) == FILE) && (remove(_path_to_res.c_str()) == 0))
 	{
         _code = 204;
@@ -203,7 +204,6 @@ std::string Response::delete_method()
 
 std::string Response::get_method()
 {
-    time_t file_date;
 	_body_content = read_file(_path_to_res);
 	if (_code == 403 || _code == 404)
 		return (createResponse(getErrorPage()));
@@ -221,7 +221,7 @@ std::string Response::getLastModif()
 	time_t last_date;
 
 	gettimeofday(&t, &tz);
-	int exist = stat(_path_to_res.c_str(), &buffer);
+	stat(_path_to_res.c_str(), &buffer);
     last_date = buffer.st_mtime + tz.tz_minuteswest * 60;
     return (formatDate(last_date));
 }
@@ -229,8 +229,6 @@ std::string Response::getLastModif()
 std::string Response::post_method()
 {
 	int fd = -1;
-	int rtn = 0;
-	int type;
 	std::string path;
 	std::string name_header;
 
