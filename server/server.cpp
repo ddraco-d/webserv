@@ -92,7 +92,6 @@ void		Server::process(long socket)
 			_cache[_requests[socket]] = response;
 			_response.insert(std::make_pair(socket, response));
 			_requests.erase(socket);
-			// std::cout << "\033[33m" << _cache[_requests[socket]] << "\033[0m" << std::endl;
 		}
 		delete [] cstr;
 	}
@@ -137,7 +136,7 @@ int			Server::send(long socket)
 
 	if (rVal == -1)
 	{
-		close(socket);
+		::close(socket);
 		sent_data[socket] = 0;
 		perror("send");
 		return (-1);

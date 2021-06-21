@@ -46,6 +46,11 @@ Response::Response(Request request)
 	initMIME();
 }
 
+// std::string Response::getRedirect()
+// {
+
+// }
+
 
 std::string Response::getResponse()
 {
@@ -73,10 +78,14 @@ std::string Response::getResponse()
 		return (createResponse(getErrorPage()));
 	}
 
+	if (_code == 301)
+	{
+		_headers["Location"] = _path_to_res;
+		return(createResponse(""));
+	}
 	// автоиндекс и путь это директория.
-	if ((getTypeFile(_path_to_res) == DRCT) && _autoindex && _method == "GET") {
+	if ((getTypeFile(_path_to_res) == DRCT) && _autoindex && _method == "GET")
         return (createResponse(getListing()));
-    }
 	if (_is_cgi)
 		return run_cgi();
 
@@ -92,6 +101,7 @@ std::string Response::getResponse()
 std::string Response::run_cgi()
 {
 	int		pid;
+	int		status;
 	pid = fork();
 	if (pid == 0)
 	{
@@ -113,10 +123,17 @@ std::string Response::run_cgi()
 		if (execve(_path_to_res.c_str(), argv, envp) == -1)
 		{
 			std::cout << "CGI ERROR\n";
+			exit(-1);
 		}
 		exit(0);
 	}
-	wait(&pid);
+	wait(&status);
+	if (WIFEXITED(status) != 0)
+		status = WEXITSTATUS(status);
+	if (status != 0)
+		_code = 501;
+	else
+		_code = 200;
 	std::stringstream answer;
 	std::ifstream out("./cgi_out.html");
 	if (out.is_open())
@@ -140,11 +157,15 @@ std::string Response::getListing()
 	base = read_file("./html/www/listing.html");
 	base = replace(base, "$1", _res);
 	if ((dr = opendir(_path_to_res.c_str())) == NULL)
+	{
+		_code = 500;
 		return ("ERROR OPENDIR");
+	}
     while ((en = readdir(dr)) != 0)
 		listing += "<li><a href=\""  + _res + "/" + std::string(en->d_name) +  "\">" + std::string(en->d_name) + "</a></li>\n";
 	closedir(dr);
 	base = replace(base, "$2", listing);
+	_code = 200;
 	return (base);
 }
 

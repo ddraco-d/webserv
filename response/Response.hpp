@@ -6,7 +6,7 @@
 /*   By: ddraco <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/14 16:39:39 by efumiko           #+#    #+#             */
-/*   Updated: 2021/06/21 12:21:49 by ddraco           ###   ########.fr       */
+/*   Updated: 2021/06/21 17:02:23 by ddraco           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,6 @@ public:
 //	Response();
 //	Response(const Request &request_conf, const Config &serv_conf);
 	Response(Request request);
-
 	std::string getResponse();
 	std::string createResponse(std::string body);
 	std::string getErrorPage();
